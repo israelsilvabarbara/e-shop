@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "vA2rNgNR2zY=",
+  "success": true,
+  "projectFilePath": "/home/israel/Projects/c#/e-shop/e-shop.csproj",
+  "expectedPackageFiles": [
+    "/home/israel/.nuget/packages/microsoft.aspnetcore.openapi/9.0.2/microsoft.aspnetcore.openapi.9.0.2.nupkg.sha512",
+    "/home/israel/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
