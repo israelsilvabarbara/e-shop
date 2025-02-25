@@ -80,11 +80,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/israel/Projects/c#/e-shop/e-shop.csproj",
-      "projectName": "e-shop",
-      "projectPath": "/home/israel/Projects/c#/e-shop/e-shop.csproj",
+      "projectUniqueName": "/home/israel/Projects/c#/e-shop/Catalog.API/Catalog.API.csproj",
+      "projectName": "Catalog.API",
+      "projectPath": "/home/israel/Projects/c#/e-shop/Catalog.API/Catalog.API.csproj",
       "packagesPath": "/home/israel/.nuget/packages/",
-      "outputPath": "/home/israel/Projects/c#/e-shop/obj/",
+      "outputPath": "/home/israel/Projects/c#/e-shop/Catalog.API/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/israel/.nuget/NuGet/NuGet.Config"
