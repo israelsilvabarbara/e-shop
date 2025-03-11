@@ -5,14 +5,19 @@ namespace Catalog.API.Data {
     
     public class CatalogContext : DbContext
     {
-        public CatalogContext(DbContextOptions<CatalogContext> options) : base(options)
-        { }
+        public CatalogContext(DbContextOptions<CatalogContext> options) 
+        : base(options)
+        {}
+
         public DbSet<CatalogBrand> CatalogBrands { get; set; }
         public DbSet<CatalogType>  CatalogTypes { get; set; }
         public DbSet<CatalogItem>  CatalogItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CatalogItem>()
+                .Property(ci => ci.Price)
+                .HasColumnType("decimal(18,2)");
             // One-to-many relationship between CatalogBrand and CatalogItem
             modelBuilder.Entity<CatalogItem>()
                 .HasOne(ci => ci.CatalogBrand)
