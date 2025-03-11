@@ -30,8 +30,6 @@ ScaffoldingReadMe.txt
 packages/
 **/packages/*
 
-# Entity Framework Migrations
-**/Migrations/
 
 # DotNet specific
 project.lock.json
@@ -52,5 +50,3 @@ Thumbs.db
 # Web related
 node_modules/
 
-# Exclude EF Core Migrations
-!Catalog.API/Migrations/*.cs
