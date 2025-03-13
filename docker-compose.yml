@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  catalog-db:
+    image: postgres:latest
+    container_name: catalog-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure-password
+      POSTGRES_DB: CatalogDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalogdata:/var/lib/postgresql/data
+  basket-db:
+    image: mongo:latest
+    container_name: basket-db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME: admin
+      - MONGO_INITDB_ROOT_PASSWORD: secure-password
+    ports:
+      - "27017:27017"
+    volumes:
+      - basketdata:/data/db
+  
+  catalog-api:
+    build:
+      context: .
+      dockerfile: Catalog.API/Dockerfile
+    container_name: catalog-api
+    environment:
+      - DB_HOST=catalog-db
+      - DB_NAME=CatalogDb
+      - DB_USER=admin
+      - DB_PASS=secure-password
+    ports:
+      - "5000:80"
+    depends_on:
+      - catalog-db
+
+volumes:
+  catalogdata:
+  basketdata:
