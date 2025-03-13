@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+var dbHost  = Environment.GetEnvironmentVariable("DB_HOST");
+var dbName  = Environment.GetEnvironmentVariable("DB_NAME");
+var dbUName = Environment.GetEnvironmentVariable("DB_USER");
+var dbPass  = Environment.GetEnvironmentVariable("DB_PASS");
+var connectionString = $"Host={dbHost};Database={dbName};Username={dbUName};Password={dbPass};";
+
 builder.Services.AddDbContext<CatalogContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString(connectionString)));
 
 var app = builder.Build();
 
