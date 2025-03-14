@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,9 +15,9 @@ namespace Catalog.API.Migrations
                 name: "CatalogBrands",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Brand = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,9 +28,9 @@ namespace Catalog.API.Migrations
                 name: "CatalogTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Type = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,18 +41,18 @@ namespace Catalog.API.Migrations
                 name: "CatalogItems",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PictureFileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PictureUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CatalogBrandId = table.Column<int>(type: "int", nullable: false),
-                    CatalogTypeId = table.Column<int>(type: "int", nullable: false),
-                    AvailableStock = table.Column<int>(type: "int", nullable: false),
-                    RestockThreshold = table.Column<int>(type: "int", nullable: false),
-                    MaxStockThreshold = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    PictureFileName = table.Column<string>(type: "text", nullable: false),
+                    PictureUri = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CatalogBrandId = table.Column<int>(type: "integer", nullable: false),
+                    CatalogTypeId = table.Column<int>(type: "integer", nullable: false),
+                    AvailableStock = table.Column<int>(type: "integer", nullable: false),
+                    RestockThreshold = table.Column<int>(type: "integer", nullable: false),
+                    MaxStockThreshold = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
