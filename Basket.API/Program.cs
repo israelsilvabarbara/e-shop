@@ -1,8 +1,11 @@
+using Basket.API.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<CatalogContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogDb")));
+
+
+builder.Services.AddSingleton<BasketContext>();
 
 var app = builder.Build();
 

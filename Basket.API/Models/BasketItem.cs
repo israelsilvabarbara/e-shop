@@ -1,13 +1,14 @@
-﻿namespace Basket.API.Models;
-
-public class BasketItem : IValidatableObject
+﻿namespace Basket.API.Models
 {
-    public string Id { get; set; }
-    public int ProductId { get; set; }
-    public string ProductName { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal OldUnitPrice { get; set; }
-    public int Quantity { get; set; }
-    public string PictureUrl { get; set; }
 
+    public class BasketItem 
+    {
+        public required int     ProductId    { get; set; }
+        public required string  ProductName  { get; set; }
+        public required int     Quantity     { get; set; }
+        public required decimal UnitPrice    { get; set; }
+        public required decimal OldUnitPrice { get; set; }
+        public required string  PictureUrl   { get; set; }
+
+    }
 }

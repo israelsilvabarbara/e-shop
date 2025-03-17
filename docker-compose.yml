@@ -18,6 +18,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: secure-password
+      MONGO_INITDB_DATABASE: basketDB
     ports:
       - "27017:27017"
     volumes:
@@ -37,6 +38,25 @@ services:
       - "8090:8080"
     depends_on:
       - catalog-db
+
+
+
+  basket-api:
+    build:
+      context: ./Basket.API
+      dockerfile: Dockerfile
+    container_name: basket-api
+    
+    environment:
+      DB_HOST: basket-db
+      DB_PORT: 27017
+      DB_USER: admin
+      DB_PASS: secure-password
+      DB_NAME: basketDB
+    ports:
+      - "9090:8080"
+    depends_on:
+      - basket-db
 
 volumes:
   catalogdata:
