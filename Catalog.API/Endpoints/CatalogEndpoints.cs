@@ -1,5 +1,4 @@
-
-
+using System.Reflection.Metadata;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
@@ -67,6 +66,53 @@ public static class CatalogEndPoints {
             return Results.NoContent();
         });
 
+
+        app.MapGet("/Catalog/types" async (CatalogContext context) => 
+        { 
+            var types = await context.CatalogTypes.ToListAsync();
+            return Results.Ok(types);
+        });
+
+
+        app.MapPost("/catalog/types", async (CatalogType type, CatalogContext context) =>
+        {
+            context.CatalogTypes.Add(type);
+            await context.SaveChangesAsync();
+            return Results.Created($"/api/catalog/types/{type.Id}", type);
+        });
+
+        app.MapDelete("/catalog/types/{id}", async (CatalogContext context) =>
+        {
+            var type = await context.CatalogTypes.FindAsync(id);
+            if (type == null) return Results.NotFound();
+
+            context.CatalogTypes.Remove(type);
+            await context.SaveChangesAsync();
+            return Results.NoContent();
+        });
+
+        app.MapGet("/catalog/brands" async (CatalogContext context) => 
+        {
+            var brands = await context.CatalogBrands.ToListAsync();
+            return Results.Ok(brands);
+        });
+
+        app.MapPost("/catalog/brands", async (CatalogBrand brand, CatalogContext context) =>
+        {
+            context.CatalogBrands.Add(brand);
+            await context.SaveChangesAsync();
+            return Results.Created($"/api/catalog/brands/{brand.Id}", brand);
+        });
+
+        app.MapDelete("/catalog/brands/{id}", async (CatalogContext context) =>
+        {
+            var brand = await context.CatalogBrands.FindAsync(id);
+            if (brand == null) return Results.NotFound();    
+
+            context.CatalogBrands.Remove(brand);
+            await context.SaveChangesAsync();
+            return Results.NoContent();
+        });
 
     }
     
