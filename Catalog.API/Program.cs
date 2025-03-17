@@ -1,10 +1,16 @@
 using Catalog.API.Data;
+using Catalog.API.DTOs;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddLogging(config => {
+    config.AddConsole();
+    config.AddDebug();
+});
 
 var dbHost  = Environment.GetEnvironmentVariable("DB_HOST");
 var dbName  = Environment.GetEnvironmentVariable("DB_NAME");
@@ -15,11 +21,6 @@ var connectionString = $"Host={dbHost};Database={dbName};Username={dbUName};Pass
 builder.Services.AddDbContext<CatalogContext>(options =>
     options.UseNpgsql(connectionString));
 
-
-builder.Services.AddLogging(config => {
-    config.AddConsole();
-    config.AddDebug();
-});
 
 // Register FluentValidation and validators
 builder.Services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
