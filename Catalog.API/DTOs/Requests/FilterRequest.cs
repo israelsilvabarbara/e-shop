@@ -4,15 +4,15 @@ namespace Catalog.API.DTOs{
 
     public record FilterRequest(
         [property: Description("Filter Items With Price Higher Than")]
-        int? minPrice,
+        int? MinPrice,
 
         [property: Description("Filter Items With Price Lower Than")]
-        int? maxPrice,
+        int? MaxPrice,
 
         [property: Description("Filter Items With Catalog Type")]
-        string? CatalogType, 
+        string? Type, 
         
         [property: Description("Filter Items With Catalog Brand")]
-        string? CatalogBrand
+        string? Brand
     );
 }

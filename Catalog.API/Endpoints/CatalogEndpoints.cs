@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
@@ -10,7 +9,10 @@ public static class CatalogEndPoints {
         
         app.MapGet("/catalog", async (PaginationRequest pagination, FilterRequest filter, CatalogContext context) =>
         {
-            var filteredCatalog = context.CatalogItems.AsQueryable();
+                var filteredCatalog = context.CatalogItems
+                    .Include(p => p.CatalogBrand) // Eagerly load CatalogBrand
+                    .Include(p => p.CatalogType)  // Eagerly load CatalogType
+                    .AsQueryable();
 
             // Apply filters
             if (filter.MinPrice.HasValue)
@@ -19,11 +21,11 @@ public static class CatalogEndPoints {
             if (filter.MaxPrice.HasValue)
                 filteredCatalog = filteredCatalog.Where(p => p.Price <= filter.MaxPrice.Value);
 
-            if (!string.IsNullOrWhiteSpace(filter.CatalogType))
-                filteredCatalog = filteredCatalog.Where(p => p.CatalogType.Type == filter.CatalogType);
+            if (!string.IsNullOrWhiteSpace(filter.Type))
+                filteredCatalog = filteredCatalog.Where(p => p.CatalogType.Type == filter.Type);
 
-            if (!string.IsNullOrWhiteSpace(filter.CatalogBrand))
-                filteredCatalog = filteredCatalog.Where(p => p.CatalogBrand.Brand == filter.CatalogBrand);
+            if (!string.IsNullOrWhiteSpace(filter.Brand))
+                filteredCatalog = filteredCatalog.Where(p => p.CatalogBrand.Brand == filter.Brand);
 
             // Apply pagination
             var paginatedCatalog = filteredCatalog
@@ -45,11 +47,27 @@ public static class CatalogEndPoints {
             return item != null ? Results.Ok(item) : Results.NotFound();
         });
 
-        app.MapPost("/catalog", async (CatalogItem item, CatalogContext context) =>
+        app.MapPost("/catalog", async (CreateItemRequest request, CatalogContext context) =>
         {
-            context.CatalogItems.Add(item);
+
+          
+            var catalogItem = new CatalogItem
+            {
+                Name = request.Name,
+                Description = request.Description,
+                PictureFileName = request.PictureFileName,
+                PictureUri = $"https://your-storage-url/{request.PictureFileName}", // Optional mapping for PictureUri
+                Price = request.Price,
+                CatalogBrandId = request.CatalogBrandId,
+                CatalogTypeId = request.CatalogTypeId,
+                AvailableStock = request.AvailableStock,
+                RestockThreshold = request.RestockThreshold,
+                MaxStockThreshold = request.MaxStockThreshold
+            };
+
+            context.CatalogItems.Add(catalogItem);
             await context.SaveChangesAsync();
-            return Results.Created($"/api/catalog/{item.Id}", item);
+            return Results.Created($"/api/catalog/{catalogItem.Id}", catalogItem);
         });
 
         app.MapPut("/catalog/{id}", async (int id, CatalogItem updatedItem, CatalogContext context) =>

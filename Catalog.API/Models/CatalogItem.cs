@@ -14,15 +14,16 @@ namespace Catalog.API.Models
         public string PictureUri { get; set; } = String.Empty;
         public decimal Price { get; set; }
 
-        public int CatalogBrandId { get; set; } // Foreign Key
-        public CatalogBrand? CatalogBrand { get; set; } // Navigation Property
-    
-        public int CatalogTypeId { get; set; } // Foreign Key
-        public CatalogType? CatalogType { get; set; } // Navigation Property
-        
         public int AvailableStock { get; set; }
         public int RestockThreshold { get; set; }
         public int MaxStockThreshold { get; set; }
+        
+        public required int CatalogBrandId { get; set; } // Foreign Key
+        public CatalogBrand CatalogBrand { get; set; } = null!; // Navigation Property
+    
+        public required int CatalogTypeId { get; set; } // Foreign Key
+        public CatalogType CatalogType { get; set; } = null!;// Navigation Property
+        
     }
 }
  

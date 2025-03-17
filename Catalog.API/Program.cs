@@ -1,4 +1,5 @@
 using Catalog.API.Data;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,10 @@ builder.Services.AddLogging(config => {
     config.AddConsole();
     config.AddDebug();
 });
+
+// Register FluentValidation and validators
+builder.Services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 
 var app = builder.Build();
 
