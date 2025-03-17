@@ -67,21 +67,33 @@ public static class CatalogEndPoints {
         });
 
 
-        app.MapGet("/Catalog/types" async (CatalogContext context) => 
+        app.MapGet("/Catalog/types", async (CatalogContext context) => 
         { 
             var types = await context.CatalogTypes.ToListAsync();
             return Results.Ok(types);
         });
 
 
-        app.MapPost("/catalog/types", async (CatalogType type, CatalogContext context) =>
+        app.MapPost("/catalog/types", async (string typeName, CatalogContext context) =>
         {
-            context.CatalogTypes.Add(type);
+            if (string.IsNullOrWhiteSpace(typeName))
+            {
+                return Results.BadRequest("Type name cannot be empty.");
+            }
+
+            var newCatalogType = new CatalogType
+            {
+                Type = typeName
+            };
+
+            context.CatalogTypes.Add(newCatalogType);
             await context.SaveChangesAsync();
-            return Results.Created($"/api/catalog/types/{type.Id}", type);
+
+            return Results.Created($"/catalog/types/{newCatalogType.Id}", newCatalogType);
         });
 
-        app.MapDelete("/catalog/types/{id}", async (CatalogContext context) =>
+
+        app.MapDelete("/catalog/types/{id}", async (int id, CatalogContext context) =>
         {
             var type = await context.CatalogTypes.FindAsync(id);
             if (type == null) return Results.NotFound();
@@ -91,20 +103,32 @@ public static class CatalogEndPoints {
             return Results.NoContent();
         });
 
-        app.MapGet("/catalog/brands" async (CatalogContext context) => 
+        app.MapGet("/catalog/brands", async (CatalogContext context) => 
         {
             var brands = await context.CatalogBrands.ToListAsync();
             return Results.Ok(brands);
         });
 
-        app.MapPost("/catalog/brands", async (CatalogBrand brand, CatalogContext context) =>
+        app.MapPost("/catalog/brands", async (string brand, CatalogContext context) =>
         {
-            context.CatalogBrands.Add(brand);
+            if(string.IsNullOrWhiteSpace(brand))
+            {
+                return Results.BadRequest("Brand name cannot be empty.");
+            }
+
+            var newBrand = new CatalogBrand
+            {
+                Brand = brand
+            };
+
+            context.CatalogBrands.Add(newBrand);
             await context.SaveChangesAsync();
-            return Results.Created($"/api/catalog/brands/{brand.Id}", brand);
+
+            return Results.Created($"/catalog/brands/{newBrand.Id}", newBrand);
+
         });
 
-        app.MapDelete("/catalog/brands/{id}", async (CatalogContext context) =>
+        app.MapDelete("/catalog/brands/{id}", async (int id, CatalogContext context) =>
         {
             var brand = await context.CatalogBrands.FindAsync(id);
             if (brand == null) return Results.NotFound();    
