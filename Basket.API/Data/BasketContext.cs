@@ -1,29 +1,41 @@
-using MongoDB.Driver;
+using Basket.API.Models;
+using Microsoft.EntityFrameworkCore;
+using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace Basket.API.Data
 {
-    public class BasketContext
+    public class BasketContext : DbContext
     {
-        private readonly IMongoDatabase _database;
+        public DbSet<BasketSelection> Baskets { get; init; }
 
-        public BasketContext(IConfiguration configuration)
+        public BasketContext(DbContextOptions options)
+            : base(options)
         {
-            // Build the connection string from environment variables
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<BasketSelection>().ToCollection("baskets");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
             var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "27017";
+            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "27017"; // Default MongoDB port
             var dbUser = Environment.GetEnvironmentVariable("DB_USER");
             var dbPass = Environment.GetEnvironmentVariable("DB_PASS");
             var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "BasketDB";
-
+ 
+            // Construct the connection string
             var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPass)
-                ? $"mongodb://{dbHost}:{dbPort}" // No authentication
+                ? $"mongodb://{dbHost}:{dbPort}" // Without authentication
                 : $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
+ 
+            optionsBuilder.UseMongoDB(connectionString, dbName);
 
-            var client = new MongoClient(connectionString);
-            _database = client.GetDatabase(dbName);
         }
-
-        // Access the "Baskets" collection
-        public IMongoCollection<Models.Basket> Baskets => _database.GetCollection<Models.Basket>("Baskets");
     }
+
 }
