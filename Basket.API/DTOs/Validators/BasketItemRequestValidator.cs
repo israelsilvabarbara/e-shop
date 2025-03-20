@@ -1,6 +1,5 @@
 using FluentValidation;
 
-
 namespace Basket.API.DTOs
 {
     public class BasketItemRequestValidator : AbstractValidator<BasketItemRequest>
