@@ -1,25 +1,13 @@
-using Basket.API.Data;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+using Basket.API.Endpoints;
+using Basket.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
-
-builder.Services.AddSingleton<BasketContext>();
-
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<BasketItemRequestValidator>();
-
+builder.AddServices();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
+app.MapBasketEndpoints();
 app.UseHttpsRedirection();
 
 app.Run();
