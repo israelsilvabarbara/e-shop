@@ -1,7 +1,6 @@
 using Basket.API.Data;
 using Basket.API.DTOs;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Basket.API.Extensions
@@ -24,7 +23,7 @@ namespace Basket.API.Extensions
 
             if ( builder.Environment.IsDevelopment() )
             {
-                dbHost = "basket-db";
+                dbHost = "localhost";
                 dbPort = "27017";
                 dbUser = "admin";
                 dbPass = "secure-password";
@@ -51,12 +50,12 @@ namespace Basket.API.Extensions
                 : $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
 
             Console.WriteLine("INFO: Using connection string: " + connectionString);
+            Console.WriteLine("INFO: Using database name: " + dbName);
+            
             // Add DbContext to the service collection
             builder.Services.AddDbContext<BasketContext>(options =>
                 options.UseMongoDB(connectionString, dbName));
 
-            // You can register other services here, if needed
-            // builder.Services.AddScoped<ISomeService, SomeServiceImplementation>();
 
             return builder;
         }
@@ -67,7 +66,6 @@ namespace Basket.API.Extensions
             builder.Services.AddValidatorsFromAssemblyContaining<BasketItemRequestValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<CreateBasketItemRequestValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<UpdateBasketItemRequestValidator>();
-            builder.Services.AddFluentValidationAutoValidation();
 
             return builder;
         }
