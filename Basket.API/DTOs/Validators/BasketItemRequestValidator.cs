@@ -12,6 +12,7 @@ namespace Basket.API.DTOs
                 .WithMessage("BuyerId is required.");
 
             RuleFor(x => x.ProductId)
+                .NotNull()
                 .GreaterThan(0)
                 .WithMessage("ProductId must be greater than 0.");
 
