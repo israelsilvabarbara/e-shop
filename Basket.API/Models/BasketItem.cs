@@ -1,14 +1,22 @@
-﻿
+﻿using MongoDB.Bson.Serialization.Attributes;
+
 namespace Basket.API.Models
 {
-
     public class BasketItem 
     {
-        public required int     ProductId    { get; set; }
-        public required string  ProductName  { get; set; }
-        public required int     Quantity     { get; set; }
-        public required decimal UnitPrice    { get; set; }
-        public required string  PictureUrl   { get; set; }
+        [BsonElement("productId")]
+        public required int ProductId { get; set; }
 
+        [BsonElement("productName")]
+        public required string ProductName { get; set; }
+
+        [BsonElement("quantity")]
+        public required int Quantity { get; set; }
+
+        [BsonElement("unitPrice")]
+        public required decimal UnitPrice { get; set; }
+
+        [BsonElement("pictureUrl")]
+        public required string PictureUrl { get; set; }
     }
 }
