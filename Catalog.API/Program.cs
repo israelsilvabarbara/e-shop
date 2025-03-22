@@ -1,39 +1,12 @@
-using Catalog.API.Data;
-using Catalog.API.DTOs;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.EntityFrameworkCore;
+using Catalog.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
-builder.Services.AddLogging(config => {
-    config.AddConsole();
-    config.AddDebug();
-});
-
-var dbHost  = Environment.GetEnvironmentVariable("DB_HOST");
-var dbName  = Environment.GetEnvironmentVariable("DB_NAME");
-var dbUName = Environment.GetEnvironmentVariable("DB_USER");
-var dbPass  = Environment.GetEnvironmentVariable("DB_PASS");
-var connectionString = $"Host={dbHost};Database={dbName};Username={dbUName};Password={dbPass};";
-
-builder.Services.AddDbContext<CatalogContext>(options =>
-    options.UseNpgsql(connectionString));
-
-
-// Register FluentValidation and validators
-builder.Services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
-builder.Services.AddFluentValidationAutoValidation();
+builder.AddServices();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.ApplyMigrations();
-}
 app.MapCatalogEndpoints();
 app.UseHttpsRedirection();
+
 app.Run();

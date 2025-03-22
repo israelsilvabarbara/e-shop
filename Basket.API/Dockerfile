@@ -14,4 +14,4 @@ EXPOSE 8080
 
 COPY --from=dev /src/publish .
 
-ENTRYPOINT ["dotnet", "Catalog.API.dll"]
+ENTRYPOINT ["dotnet", "Basket.API.dll"]

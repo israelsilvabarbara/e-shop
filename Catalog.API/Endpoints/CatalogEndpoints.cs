@@ -1,6 +1,8 @@
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 public static class CatalogEndPoints {
@@ -26,14 +28,27 @@ public static class CatalogEndPoints {
         
         
 
-        static async Task<IResult> listItems(PaginationRequest pagination, FilterRequest filter, CatalogContext context)
+        static async Task<IResult> listItems(
+            [FromBody] ItemListRequest request, 
+            [FromServices] IValidator<ItemListRequest> validator, 
+            [FromServices] CatalogContext context)
         {
+
+            var validationResult = validator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
+
             var filteredCatalog = context.CatalogItems
                 .Include(p => p.CatalogBrand) // Eagerly load CatalogBrand
                 .Include(p => p.CatalogType)  // Eagerly load CatalogType
                 .AsQueryable();
 
             // Apply filters
+
+            var filter = request.Filter;
             if (filter.MinPrice.HasValue)
                 filteredCatalog = filteredCatalog.Where(p => p.Price >= filter.MinPrice.Value);
 
@@ -47,6 +62,7 @@ public static class CatalogEndPoints {
                 filteredCatalog = filteredCatalog.Where(p => p.CatalogBrand.Brand == filter.Brand);
 
             // Apply pagination
+            var pagination = request.Pagination;
             var paginatedCatalog = filteredCatalog
                 .Skip((pagination.PageNumber - 1) * pagination.PageSize)
                 .Take(pagination.PageSize)
@@ -68,8 +84,18 @@ public static class CatalogEndPoints {
 
 
 
-        static async Task<IResult> insertItem(CreateItemRequest request, CatalogContext context)
+        static async Task<IResult> insertItem(
+            [FromBody] CreateItemRequest request,
+            [FromServices] IValidator<CreateItemRequest> validator, 
+            [FromServices] CatalogContext context)
         {
+            var validationResult = validator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
+
             var catalogItem = new CatalogItem
             {
                 Name = request.Name,
@@ -90,22 +116,54 @@ public static class CatalogEndPoints {
         };
 
         
-        static async Task<IResult> updateItem(int id, CatalogItem updatedItem, CatalogContext context)
+        static async Task<IResult> updateItem(
+            [FromBody] UpdateItemRequest request,
+            [FromServices] IValidator<UpdateItemRequest> validator,
+            [FromServices] CatalogContext context)
         {
-            var item = await context.CatalogItems.FindAsync(id);
+            var validationResult = validator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
+
+            var item = await context.CatalogItems.FirstOrDefaultAsync(i => i.Id == request.Id);
+
             if (item == null) return Results.NotFound();
 
-            item.Name = updatedItem.Name;
-            item.Price = updatedItem.Price;
-            item.Description = updatedItem.Description;
-            // Update other properties as needed...
+            if(request.Name != null) item.Name = request.Name;
+            if(request.Description != null) item.Description = request.Description;
+            if(request.PictureFileName != null) item.PictureFileName = request.PictureFileName;
+            if(request.PictureUrl != null) item.PictureUri = request.PictureUrl;
+            if(request.Price != null) item.Price = (decimal)request.Price;
+            if(request.Brand != null) 
+            {
+                var brand = await context.CatalogBrands.FirstOrDefaultAsync(b => b.Brand == request.Brand);
+                if(brand == null)
+                {
+                    Results.BadRequest($"Brand:{request.Brand} not found");
+                }
+                item.CatalogBrandId = brand!.Id;
+            }
+
+            if(request.Type != null) {
+                var type = await context.CatalogTypes.FirstOrDefaultAsync(t => t.Type == request.Type);
+                if(type == null)
+                {
+                    Results.BadRequest($"Type:{request.Type} not found");
+                }
+                item.CatalogTypeId = type!.Id;
+            }
 
             await context.SaveChangesAsync();
             return Results.NoContent();
         }
 
 
-        static async Task<IResult> deleteItem(int id, CatalogContext context)
+        static async Task<IResult> deleteItem(
+            [FromRoute] int id, 
+            [FromServices] CatalogContext context)
         {
             var item = await context.CatalogItems.FindAsync(id);
             if (item == null) return Results.NotFound();
@@ -115,19 +173,24 @@ public static class CatalogEndPoints {
             return Results.NoContent();
         }
 
-        static async Task<IResult> listTypes(CatalogContext context) 
+        static async Task<IResult> listTypes(
+            [FromServices] CatalogContext context) 
         { 
             var types = await context.CatalogTypes.ToListAsync();
             return Results.Ok(types);
         }
 
-        static async Task<IResult> getType(int id, CatalogContext context)
+        static async Task<IResult> getType(
+            [FromRoute] int id, 
+            [FromServices] CatalogContext context)
         {
             var type = await context.CatalogTypes.FindAsync(id);
             return type != null ? Results.Ok(type) : Results.NotFound();
         }
 
-        static async Task<IResult> insertType(string typeName, CatalogContext context)
+        static async Task<IResult> insertType(
+            [FromRoute] string typeName, 
+            [FromServices] CatalogContext context )
         {
             if (string.IsNullOrWhiteSpace(typeName))
             {
@@ -146,7 +209,9 @@ public static class CatalogEndPoints {
         }
 
 
-        static async Task<IResult> deleteType(int id, CatalogContext context)
+        static async Task<IResult> deleteType(
+            [FromRoute] int id, 
+            [FromServices] CatalogContext context )
         {
             var type = await context.CatalogTypes.FindAsync(id);
             if (type == null) return Results.NotFound();
@@ -156,7 +221,8 @@ public static class CatalogEndPoints {
             return Results.NoContent();
         }
         
-        static async Task<IResult> listBrands(CatalogContext context) 
+        static async Task<IResult> listBrands(
+            [FromServices] CatalogContext context ) 
         {
             var brands = await context.CatalogBrands.ToListAsync();
             return Results.Ok(brands);
@@ -168,7 +234,9 @@ public static class CatalogEndPoints {
             return brand != null ? Results.Ok(brand) : Results.NotFound();
         }
 
-        static async Task<IResult> insertBrand(string brand, CatalogContext context)
+        static async Task<IResult> insertBrand(
+            [FromRoute] string brand, 
+            [FromServices] CatalogContext context )
         {
             if(string.IsNullOrWhiteSpace(brand))
             {
@@ -187,7 +255,9 @@ public static class CatalogEndPoints {
 
         }
 
-        static async Task<IResult> deleteBrand (int id, CatalogContext context) 
+        static async Task<IResult> deleteBrand (
+            [FromRoute] int id, 
+            [FromServices] CatalogContext context ) 
         {
             var brand = await context.CatalogBrands.FindAsync(id);
             if (brand == null) return Results.NotFound();    
