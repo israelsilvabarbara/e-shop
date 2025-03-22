@@ -7,31 +7,34 @@ namespace Catalog.API.DTOs
         public CreateItemRequestValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.");
+                .NotEmpty();
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Description is required.");
+                .NotEmpty();
 
             RuleFor(x => x.PictureFileName)
-                .NotEmpty().WithMessage("PictureFileName is required.");
+                .NotEmpty();
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than 0.");
+                .GreaterThan(0);
 
             RuleFor(x => x.CatalogBrandId)
-                .GreaterThan(0).WithMessage("CatalogBrandId must be a valid ID.");
+                .NotEmpty()
+                .GreaterThan(0);
 
             RuleFor(x => x.CatalogTypeId)
-                .GreaterThan(0).WithMessage("CatalogTypeId must be a valid ID.");
+                .NotEmpty()
+                .GreaterThan(0);
 
             RuleFor(x => x.AvailableStock)
-                .GreaterThanOrEqualTo(0).WithMessage("AvailableStock must be 0 or higher.");
+                .GreaterThanOrEqualTo(0);
 
             RuleFor(x => x.RestockThreshold)
-                .GreaterThanOrEqualTo(0).WithMessage("RestockThreshold must be 0 or higher.");
+                .GreaterThanOrEqualTo(0);
 
             RuleFor(x => x.MaxStockThreshold)
-                .GreaterThanOrEqualTo(0).WithMessage("MaxStockThreshold must be 0 or higher.");
+                .GreaterThanOrEqualTo(0);
         }
+
     }
 }
