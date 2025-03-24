@@ -1,5 +1,3 @@
-
-
 using FluentValidation;
 using Inventory.API.Data;
 using Inventory.API.DTOs;

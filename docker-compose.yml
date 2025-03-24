@@ -28,6 +28,20 @@ services:
     profiles:
       - data
   
+  inventory-db:
+    image: mongo:latest
+    container_name: inventory-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secure-password
+      MONGO_INITDB_DATABASE: inventoryDB
+    ports:
+      - "27018:27017"
+    volumes:
+      - inventorydata:/data/db
+    profiles:
+      - data
+  
   catalog-api:
     build:
       context: ./Catalog.API
@@ -65,7 +79,26 @@ services:
       - basket-db
     profiles:
       - apis
+  
+  inventory-api:
+    build:
+      context: ./Inventory.API
+      dockerfile: Dockerfile
+    container_name: inventory-api
+    environment:
+      DB_HOST: inventory-db
+      DB_PORT: 27018
+      DB_USER: admin
+      DB_PASS: secure-password
+      DB_NAME: inventoryDB
+    ports:
+      - "9091:8080"
+    depends_on:
+      - inventory-db
+    profiles:
+      - apis
 
 volumes:
   catalogdata:
   basketdata:
+  inventorydata:
