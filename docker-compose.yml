@@ -41,6 +41,20 @@ services:
       - inventorydata:/data/db
     profiles:
       - data
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ port for communication with applications
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    profiles:
+      - events
+      - data
+
   
   catalog-api:
     build:
@@ -58,8 +72,6 @@ services:
       - catalog-db
     profiles:
       - apis
-
-
 
   basket-api:
     build:
