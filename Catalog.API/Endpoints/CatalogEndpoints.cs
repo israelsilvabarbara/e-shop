@@ -20,7 +20,6 @@ public static class CatalogEndPoints {
         app.MapPost("/catalog/type", insertType);
         app.MapDelete("/catalog/type/{id}", deleteType);
 
-
         app.MapGet("/catalog/brand", listBrands);
         app.MapGet("/catalog/brand/{id}", getItem);
         app.MapPost("/catalog/brand", insertBrand);
@@ -83,7 +82,6 @@ public static class CatalogEndPoints {
         }
 
 
-
         static async Task<IResult> insertItem(
             [FromBody] CreateItemRequest request,
             [FromServices] IValidator<CreateItemRequest> validator, 
@@ -104,10 +102,7 @@ public static class CatalogEndPoints {
                 PictureUri = $"https://your-storage-url/{request.PictureFileName}", // Optional mapping for PictureUri
                 Price = request.Price,
                 CatalogBrandId = request.CatalogBrandId,
-                CatalogTypeId = request.CatalogTypeId,
-                AvailableStock = request.AvailableStock,
-                RestockThreshold = request.RestockThreshold,
-                MaxStockThreshold = request.MaxStockThreshold
+                CatalogTypeId = request.CatalogTypeId
             };
 
             context.CatalogItems.Add(catalogItem);
@@ -266,7 +261,5 @@ public static class CatalogEndPoints {
             await context.SaveChangesAsync();
             return Results.NoContent();
         }
-
     }
-    
 }

@@ -20,5 +20,4 @@ namespace Basket.API.Data
             modelBuilder.Entity<BasketSelection>().ToCollection("baskets");
         }
     }
-
 }

@@ -13,10 +13,6 @@ namespace Catalog.API.Models
         public string PictureFileName { get; set; } = String.Empty;
         public string PictureUri { get; set; } = String.Empty;
         public decimal Price { get; set; }
-
-        public int AvailableStock { get; set; }
-        public int RestockThreshold { get; set; }
-        public int MaxStockThreshold { get; set; }
         
         public required int CatalogBrandId { get; set; } // Foreign Key
         public CatalogBrand CatalogBrand { get; set; } = null!; // Navigation Property

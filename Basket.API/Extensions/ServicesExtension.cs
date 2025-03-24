@@ -42,7 +42,7 @@ namespace Basket.API.Extensions
                  string.IsNullOrWhiteSpace(dbPort) || 
                  string.IsNullOrWhiteSpace(dbName)   )
             {
-                throw new ArgumentException($"Database configuration is missing or invalid.\nDB_HOST: {dbHost}, DB_PORT: {dbPort}, DB_NAME: {dbName} environment variables are required.");
+                throw new ArgumentException($"Database configuration is missing or invalid for Basket API.\nDB_HOST: {dbHost}, DB_PORT: {dbPort}, DB_NAME: {dbName} environment variables are required.");
             }
 
             var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPass)
