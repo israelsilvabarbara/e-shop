@@ -1,0 +1,7 @@
+namespace Shared.Events
+{
+    public record ProductDeletedEvent
+    (
+        Guid productId
+    );
+}
