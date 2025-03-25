@@ -89,7 +89,7 @@ public static class InventoryEndpoints
             return Results.BadRequest(validatorResultt.ToDictionary());
         }
 
-        if (await context.Inventorys.AnyAsync(i => i.ProdutctId == request.ProductId))
+        if (await context.Inventorys.AnyAsync(i => i.ProdutctId == request.ProductId ))
         {
             return Results.BadRequest("Product already exists");
         }
