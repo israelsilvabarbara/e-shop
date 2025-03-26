@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Order.API", "Order.API\Orde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.API", "Payment.API\Payment.API.csproj", "{6E5B2320-DA17-4A6E-AA1F-3A564FFC5215}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Events", "Shared.Events\Shared.Events.csproj", "{54DE1435-4705-4C65-86F6-A62F55EC103D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{6E5B2320-DA17-4A6E-AA1F-3A564FFC5215}.Release|x64.Build.0 = Release|Any CPU
 		{6E5B2320-DA17-4A6E-AA1F-3A564FFC5215}.Release|x86.ActiveCfg = Release|Any CPU
 		{6E5B2320-DA17-4A6E-AA1F-3A564FFC5215}.Release|x86.Build.0 = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|x64.Build.0 = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Debug|x86.Build.0 = Debug|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|x64.ActiveCfg = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|x64.Build.0 = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|x86.ActiveCfg = Release|Any CPU
+		{54DE1435-4705-4C65-86F6-A62F55EC103D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

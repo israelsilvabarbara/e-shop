@@ -1,8 +1,9 @@
 namespace Shared.Events
 {
-    public record ProductRestockedEvent
+    public record ProductPriceChangedEvent
     (
         Guid productId,
-        int quantity
+        decimal Price,
+        DateTime EventDate
     );
 }

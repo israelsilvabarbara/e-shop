@@ -5,6 +5,6 @@ namespace Shared.Events
         Guid productId,
         Guid productName,
         int stock,
-        DateTime updated
+        DateTime EventDate
     );
 }

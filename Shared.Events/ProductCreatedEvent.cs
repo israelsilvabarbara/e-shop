@@ -2,10 +2,9 @@
 {
     public record ProductCreatedEvent
     (
-        Guid productId,
-        string productName,
-        int stock,
-        DateTime created
+        Guid ProductId,
+        string ProductName,
+        DateTime EventDate
     );
 }
 
