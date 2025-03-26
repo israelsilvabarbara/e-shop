@@ -5,24 +5,25 @@ services:
     image: postgres:latest
     container_name: catalog-db
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secure-password
-      POSTGRES_DB: "CatalogDb"
+      POSTGRES_USER: ${CATALOG__DB_USER}
+      POSTGRES_PASSWORD: ${CATALOG_DB_PASS}
+      POSTGRES_DB: ${CATALOG_NAME}
     ports:
-      - "5432:5432"
+      - "${CATALOG_DB_EXTERNAL_PORT}:5432"
     volumes:
       - catalogdata:/var/lib/postgresql/data
     profiles:
       - data
+
   basket-db:
     image: mongo:latest
     container_name: basket-db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: secure-password
-      MONGO_INITDB_DATABASE: basketDB
+      MONGO_INITDB_ROOT_USERNAME: ${BASKET_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${BASKET_DB_PASS}
+      MONGO_INITDB_DATABASE: ${BASKET_DB_NAME}
     ports:
-      - "27017:27017"
+      - "${BASKET_DB_EXTERNAL_PORT}:27017"
     volumes:
       - basketdata:/data/db
     profiles:
@@ -32,11 +33,11 @@ services:
     image: mongo:latest
     container_name: inventory-db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: secure-password
-      MONGO_INITDB_DATABASE: inventoryDB
+      MONGO_INITDB_ROOT_USERNAME: ${INVENTORY_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${INVENTORY_DB_PASS}
+      MONGO_INITDB_DATABASE: ${INVENTORY_DB_NAME}
     ports:
-      - "27018:27017"
+      - "${INVENTORY_DB_EXTERNAL_PORT}:27017"
     volumes:
       - inventorydata:/data/db
     profiles:
@@ -45,14 +46,14 @@ services:
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${EVENT_USER}
+      RABBITMQ_DEFAULT_PASS: ${EVENT_PASS}
     ports:
       - "5672:5672" # RabbitMQ port for communication with applications
       - "15672:15672" # Management UI port
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
     volumes:
-      - "./data:/var/lib/rabbitmq/mnesia/"
+      - rabbitmqdata:/var/lib/rabbitmq/mnesia
     profiles:
       - events
       - data
@@ -64,10 +65,11 @@ services:
       dockerfile: Dockerfile
     container_name: catalog-api
     environment:
-      DB_HOST: catalog-db
-      DB_NAME: CatalogDb
-      DB_USER: admin
-      DB_PASS: secure-password
+      DB_HOST: ${CATALOG_DB_HOST}
+      DB_PORT: ${CATALOG_DB_EXTERNAL_PORT}
+      DB_NAME: ${CATALOG_DB_NAME}
+      DB_USER: ${CATALOG_DB_USER}
+      DB_PASS: ${CATALOG_DB_PASS}
     ports:
       - "8090:8080"
     depends_on:
@@ -82,11 +84,11 @@ services:
     container_name: basket-api
     
     environment:
-      DB_HOST: basket-db
-      DB_PORT: 27017
-      DB_USER: admin
-      DB_PASS: secure-password
-      DB_NAME: basketDB
+      DB_HOST: ${BASKET_DB_HOST}
+      DB_PORT: ${BASKET_DB_EXTERNAL_PORT}
+      DB_USER: ${BASKET_DB_USER}
+      DB_PASS: ${BASKET_DB_PASS}
+      DB_NAME: ${BASKET_DB_NAME}
     ports:
       - "9090:8080"
     depends_on:
@@ -100,11 +102,15 @@ services:
       dockerfile: Dockerfile
     container_name: inventory-api
     environment:
-      DB_HOST: inventory-db
-      DB_PORT: 27018
-      DB_USER: admin
-      DB_PASS: secure-password
-      DB_NAME: inventoryDB
+      DB_HOST: ${INVENTORY_DB_HOST}
+      DB_PORT: ${INVENTORY_DB_EXTERNAL_PORT}
+      DB_USER: ${INVENTORY_DB_USER}
+      DB_PASS: ${INVENTORY_DB_PASS}
+      DB_NAME: ${INVENTORY_DB_NAME}
+      EVENT_HOST: ${EVENT_HOST}
+      EVENT_PORT: ${EVENT_EXTERNAL_API_PORT}
+      EVENT_USER: ${EVENT_USER}
+      EVENT_PASS: ${EVENT_PASS}
     ports:
       - "9091:8080"
     depends_on:
@@ -116,4 +122,4 @@ volumes:
   catalogdata:
   basketdata:
   inventorydata:
-  rabbitmq:
+  rabbitmqdata:
