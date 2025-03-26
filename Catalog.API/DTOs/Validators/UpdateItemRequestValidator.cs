@@ -7,8 +7,7 @@ namespace Catalog.API.DTOs
         public UpdateItemRequestValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty()
-                .GreaterThan(0);
+                .NotEmpty();
 
             RuleFor(x => x.Name)
                 .MaximumLength(50)

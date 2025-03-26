@@ -19,21 +19,10 @@ namespace Catalog.API.DTOs
                 .GreaterThan(0);
 
             RuleFor(x => x.CatalogBrandId)
-                .NotEmpty()
-                .GreaterThan(0);
+                .NotEmpty();
 
             RuleFor(x => x.CatalogTypeId)
-                .NotEmpty()
-                .GreaterThan(0);
-
-            RuleFor(x => x.AvailableStock)
-                .GreaterThanOrEqualTo(0);
-
-            RuleFor(x => x.RestockThreshold)
-                .GreaterThanOrEqualTo(0);
-
-            RuleFor(x => x.MaxStockThreshold)
-                .GreaterThanOrEqualTo(0);
+                .NotEmpty();
         }
 
     }

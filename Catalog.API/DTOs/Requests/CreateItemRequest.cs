@@ -17,18 +17,9 @@ namespace Catalog.API.DTOs
         decimal Price,
         
         [property: Description("The catalog brand id of the item")]
-        int CatalogBrandId,
+        Guid CatalogBrandId,
         
         [property: Description("The catalog type id of the item")]
-        int CatalogTypeId,
-        
-        [property: Description("The available stock of the item")]
-        int AvailableStock,
-        
-        [property: Description("The restock threshold of the item")]
-        int RestockThreshold,
-        
-        [property: Description("The max stock threshold of the item")]
-        int MaxStockThreshold
+        Guid CatalogTypeId
     );
 }

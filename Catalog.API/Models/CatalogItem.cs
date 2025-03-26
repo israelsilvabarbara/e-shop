@@ -6,7 +6,7 @@ namespace Catalog.API.Models
     public class CatalogItem
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         
         public string Name { get; set; } = String.Empty;
         public string Description { get; set; } = String.Empty;
@@ -14,10 +14,10 @@ namespace Catalog.API.Models
         public string PictureUri { get; set; } = String.Empty;
         public decimal Price { get; set; }
         
-        public required int CatalogBrandId { get; set; } // Foreign Key
+        public required Guid CatalogBrandId { get; set; } // Foreign Key
         public CatalogBrand CatalogBrand { get; set; } = null!; // Navigation Property
     
-        public required int CatalogTypeId { get; set; } // Foreign Key
+        public required Guid CatalogTypeId { get; set; } // Foreign Key
         public CatalogType CatalogType { get; set; } = null!;// Navigation Property
         
     }

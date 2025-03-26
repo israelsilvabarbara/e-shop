@@ -96,10 +96,11 @@ public static class CatalogEndPoints {
 
             var catalogItem = new CatalogItem
             {
+                Id = Guid.NewGuid(),
                 Name = request.Name,
                 Description = request.Description,
                 PictureFileName = request.PictureFileName,
-                PictureUri = $"https://your-storage-url/{request.PictureFileName}", // Optional mapping for PictureUri
+                PictureUri = $"https://your-storage-url/{request.PictureFileName}",
                 Price = request.Price,
                 CatalogBrandId = request.CatalogBrandId,
                 CatalogTypeId = request.CatalogTypeId

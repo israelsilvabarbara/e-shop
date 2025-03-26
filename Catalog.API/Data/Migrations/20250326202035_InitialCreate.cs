@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -15,8 +15,7 @@ namespace Catalog.API.Migrations
                 name: "CatalogBrands",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Brand = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -28,8 +27,7 @@ namespace Catalog.API.Migrations
                 name: "CatalogTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -41,18 +39,14 @@ namespace Catalog.API.Migrations
                 name: "CatalogItems",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     PictureFileName = table.Column<string>(type: "text", nullable: false),
                     PictureUri = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    CatalogBrandId = table.Column<int>(type: "integer", nullable: false),
-                    CatalogTypeId = table.Column<int>(type: "integer", nullable: false),
-                    AvailableStock = table.Column<int>(type: "integer", nullable: false),
-                    RestockThreshold = table.Column<int>(type: "integer", nullable: false),
-                    MaxStockThreshold = table.Column<int>(type: "integer", nullable: false)
+                    CatalogBrandId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CatalogTypeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

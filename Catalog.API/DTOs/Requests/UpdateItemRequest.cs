@@ -2,7 +2,7 @@ namespace Catalog.API.DTOs
 {
     public record UpdateItemRequest
     (
-        int Id,
+        Guid Id,
         string? Name,
         string? Description,
         string? PictureFileName,
