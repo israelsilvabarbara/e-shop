@@ -6,6 +6,7 @@ namespace Shared.Events
         Guid PaymentId,
         string Reason,
         string Code,
-        string Message
+        string Message,
+        DateTime EventDate
     );
 }

@@ -3,6 +3,7 @@ namespace Shared.Events
     public record PaymentProcessedEvent
     (
         Guid OrderId,
-        Guid PaymentId
+        Guid PaymentId,
+        DateTime EventDate
     );
 }

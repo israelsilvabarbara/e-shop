@@ -5,6 +5,7 @@ namespace Shared.Events
         Guid OrderId,
         Guid CustomerId,
         Guid BasketId,
-        decimal TotalPrice
+        decimal TotalPrice,
+        DateTime EventDate
     );
 }

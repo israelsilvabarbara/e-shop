@@ -3,6 +3,7 @@ namespace Shared.Events
     public record InventoryStockLowEvent
     (
         Guid ProductId,
-        int Stock
+        int Stock,
+        DateTime EventDate
     );
 }

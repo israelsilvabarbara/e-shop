@@ -3,6 +3,7 @@ namespace Shared.Events
     public record DiscountApplied
     (
         int OrderId,
-        int Discount
+        int Discount,
+        DateTime EventDate
     )
 }

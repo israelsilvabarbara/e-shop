@@ -2,6 +2,7 @@ namespace Shared.Events
 {
     public record ProductOutOfStockEvent
     (
-        Guid ProductId
+        Guid ProductId,
+        DateTime EventDate
     );
 }

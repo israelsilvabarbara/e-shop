@@ -4,6 +4,7 @@ namespace Shared.Events
     (
         Guid BasketId,
         Guid CustomerId,
-        IEnumerable<Guid> ProductIds
+        IEnumerable<Guid> ProductIds,
+        DateTime EventDate
     );
 }

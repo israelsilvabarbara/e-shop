@@ -3,6 +3,7 @@ namespace Shared.Events
     public record ProductStockChangedEvent
     (
         Guid ProductId,
-        int Stock
+        int Stock,
+        DateTime EventDate
     );
 }
