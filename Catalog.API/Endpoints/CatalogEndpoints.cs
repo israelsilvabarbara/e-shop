@@ -28,11 +28,20 @@ public static class CatalogEndPoints {
         
 
         static async Task<IResult> listItems(
-            [FromBody] ItemListRequest request, 
+            HttpContext httpContext, 
             [FromServices] IValidator<ItemListRequest> validator, 
             [FromServices] CatalogContext context)
         {
 
+            var query = httpContext.Request.Query;
+
+            var request = ItemListRequest.FromQuery(query);
+
+            if (request == null)
+            {
+                return Results.BadRequest("Invalid request");
+            }
+            
             var validationResult = validator.Validate(request);
 
             if (!validationResult.IsValid)
