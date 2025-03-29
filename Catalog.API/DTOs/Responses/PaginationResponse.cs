@@ -3,7 +3,9 @@ namespace Catalog.API.DTOs{
 
     public record PaginationResponse<T>
     ( 
-        IEnumerable<T> Items,
-        int TotalCount
+        int TotalCount,
+        PaginationRequest PageDetails,
+        FilterRequest FilterDetails,
+        IEnumerable<T> Items
     );
 }

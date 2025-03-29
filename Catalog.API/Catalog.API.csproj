@@ -18,4 +18,10 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Shared.Events">
+      <HintPath>./Shared.Events/Shared.Events.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

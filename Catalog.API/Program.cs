@@ -9,4 +9,5 @@ var app = builder.Build();
 app.MapCatalogEndpoints();
 app.UseHttpsRedirection();
 
+
 app.Run();
