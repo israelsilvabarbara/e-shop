@@ -5,15 +5,16 @@ services:
     image: postgres:latest
     container_name: catalog-db
     environment:
-      POSTGRES_USER: ${CATALOG__DB_USER}
+      POSTGRES_USER: ${CATALOG_DB_USER}
       POSTGRES_PASSWORD: ${CATALOG_DB_PASS}
-      POSTGRES_DB: ${CATALOG_NAME}
+      POSTGRES_DB: ${CATALOG_DB_NAME}
     ports:
       - "${CATALOG_DB_EXTERNAL_PORT}:5432"
     volumes:
       - catalogdata:/var/lib/postgresql/data
     profiles:
       - data
+      - catalog
 
   basket-db:
     image: mongo:latest
@@ -28,6 +29,7 @@ services:
       - basketdata:/data/db
     profiles:
       - data
+      - basket
   
   inventory-db:
     image: mongo:latest
@@ -42,6 +44,7 @@ services:
       - inventorydata:/data/db
     profiles:
       - data
+      - inventory
 
   rabbitmq:
     image: rabbitmq:management
@@ -58,7 +61,12 @@ services:
       - events
       - data
 
-  
+  shared-events:
+    build:
+      context: ./Shared.Events
+      dockerfile: Dockerfile
+    image: shared-events:latest
+
   catalog-api:
     build:
       context: ./Catalog.API
@@ -74,8 +82,10 @@ services:
       - "8090:8080"
     depends_on:
       - catalog-db
+      - shared-events
     profiles:
       - apis
+      - catalog
 
   basket-api:
     build:
@@ -93,8 +103,10 @@ services:
       - "9090:8080"
     depends_on:
       - basket-db
+      - shared-events
     profiles:
       - apis
+      - basket
   
   inventory-api:
     build:
@@ -115,8 +127,10 @@ services:
       - "9091:8080"
     depends_on:
       - inventory-db
+      - shared-events
     profiles:
       - apis
+      - inventory
 
 volumes:
   catalogdata:
