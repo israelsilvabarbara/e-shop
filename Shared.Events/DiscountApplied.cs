@@ -5,5 +5,5 @@ namespace Shared.Events
         int OrderId,
         int Discount,
         DateTime EventDate
-    )
+    );
 }
