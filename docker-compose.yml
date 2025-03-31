@@ -61,16 +61,10 @@ services:
       - events
       - data
 
-  shared-events:
-    build:
-      context: ./Shared.Events
-      dockerfile: Dockerfile
-    image: shared-events:latest
-
   catalog-api:
     build:
-      context: ./Catalog.API
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Catalog.API/Dockerfile
     container_name: catalog-api
     environment:
       DB_HOST: ${CATALOG_DB_HOST}
@@ -78,19 +72,22 @@ services:
       DB_NAME: ${CATALOG_DB_NAME}
       DB_USER: ${CATALOG_DB_USER}
       DB_PASS: ${CATALOG_DB_PASS}
+      EVENT_HOST: ${EVENT_HOST}
+      EVENT_PORT: ${EVENT_EXTERNAL_API_PORT}
+      EVENT_USER: ${EVENT_USER}
+      EVENT_PASS: ${EVENT_PASS}
     ports:
       - "8090:8080"
     depends_on:
       - catalog-db
-      - shared-events
     profiles:
       - apis
       - catalog
 
   basket-api:
     build:
-      context: ./Basket.API
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Basket.API/Dockerfile
     container_name: basket-api
     
     environment:
@@ -103,15 +100,14 @@ services:
       - "9090:8080"
     depends_on:
       - basket-db
-      - shared-events
     profiles:
       - apis
       - basket
   
   inventory-api:
     build:
-      context: ./Inventory.API
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Inventory.API/Dockerfile
     container_name: inventory-api
     environment:
       DB_HOST: ${INVENTORY_DB_HOST}
@@ -127,7 +123,6 @@ services:
       - "9091:8080"
     depends_on:
       - inventory-db
-      - shared-events
     profiles:
       - apis
       - inventory

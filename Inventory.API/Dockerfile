@@ -2,9 +2,15 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY Inventory.API.csproj .
-RUN dotnet restore "Inventory.API.csproj"
-COPY . .
+COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
+RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
+COPY Shared.Events/ ./Shared.Events/
+
+COPY Inventory.API/Inventory.API.csproj ./Inventory.API/
+RUN dotnet restore "./Inventory.API/Inventory.API.csproj"
+COPY Inventory.API/ ./Inventory.API/
+
+WORKDIR /src/Inventory.API
 RUN dotnet build   "Inventory.API.csproj" -c $BUILD_CONFIGURATION -o /src/build
 RUN dotnet publish "Inventory.API.csproj" -c $BUILD_CONFIGURATION -o /src/publish 
 
