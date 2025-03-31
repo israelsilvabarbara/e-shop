@@ -2,7 +2,7 @@ namespace Catalog.API.DTOs
 {
     public record ListTypesResponse
     (
-        Guid Id,
-        string Type
+        int Count,
+        List<ItemResponse> Types
     );
 }

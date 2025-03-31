@@ -208,9 +208,10 @@ public static class CatalogEndPoints {
     { 
         var types = await context.CatalogTypes.ToListAsync();
 
-        var typesResponse = types.Select(t => new ListBrandsResponse(t.Id, t.Type)).ToList();
+        List<ItemResponse> itemsResponse = types.Select(t => new ItemResponse(Id:t.Id, Name:t.Type)).ToList();
 
-        return Results.Ok(typesResponse);
+
+        return Results.Ok(new ListTypesResponse(Count: itemsResponse.Count, Types: itemsResponse));
     }
 
     static async Task<IResult> SearchType(
@@ -218,7 +219,7 @@ public static class CatalogEndPoints {
         [FromServices] CatalogContext context)
     {
         var type = await context.CatalogTypes.FindAsync(id);
-        return type != null ? Results.Ok(new ListTypesResponse(type.Id, type.Type)) : 
+        return type != null ? Results.Ok(new ItemResponse(Id:type.Id, Name:type.Type)) : 
                               Results.NotFound();
     }
 
@@ -254,7 +255,9 @@ public static class CatalogEndPoints {
         context.CatalogTypes.AddRange(filteredTypes);
         await context.SaveChangesAsync();
 
-        return Results.Created($"/catalog/types/insert", filteredTypes.Select( t => new ListTypesResponse(t.Id, t.Type)).ToList());
+        List<ItemResponse> itemResponse = filteredTypes.Select(t => new ItemResponse(Id:t.Id, Name:t.Type)).ToList();
+
+        return Results.Created($"/catalog/types/insert", new ListTypesResponse( Count: itemResponse.Count, Types:itemResponse ));
     }
 
 
@@ -275,8 +278,9 @@ public static class CatalogEndPoints {
     {
         var brands = await context.CatalogBrands.ToListAsync();
 
-        var brandsResponse = brands.Select(b => new ListBrandsResponse(b.Id, b.Brand)).ToList();
-        return Results.Ok(brands);
+        List<ItemResponse> brandsResponse = brands.Select(b => new ItemResponse(Id:b.Id, Name:b.Brand)).ToList();
+        
+        return Results.Ok(new ListBrandsResponse( Count: brandsResponse.Count, Brands: brandsResponse));
     }
 
     static async Task<IResult> SearchBrand(
@@ -284,7 +288,7 @@ public static class CatalogEndPoints {
         [FromServices] CatalogContext context)
     {
         var brand = await context.CatalogBrands.FindAsync(id);
-        return brand != null ? Results.Ok(new ListBrandsResponse(brand.Id, brand.Brand)) : 
+        return brand != null ? Results.Ok(new ItemResponse(Id:brand.Id, Name:brand.Brand)) : 
                                Results.NotFound();
     }
 
@@ -316,7 +320,9 @@ public static class CatalogEndPoints {
         context.CatalogBrands.AddRange(filteredBrands);
         await context.SaveChangesAsync();
 
-        return Results.Created($"/catalog/brands/insert", filteredBrands.Select(t => new ListBrandsResponse(t.Id, t.Brand)).ToList());
+        List<ItemResponse> itemsResponse = filteredBrands.Select(b => new ItemResponse(Id:b.Id, Name:b.Brand)).ToList();
+
+        return Results.Created($"/catalog/brands/insert", new ListBrandsResponse( Count: itemsResponse.Count, Brands: itemsResponse));
     }
 
     static async Task<IResult> DeleteBrand (
