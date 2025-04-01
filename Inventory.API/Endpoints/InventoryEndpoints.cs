@@ -9,55 +9,69 @@ public static class InventoryEndpoints
 {
     public static void MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/inventory", listItems);
-        app.MapGet("/inventory/{productId}", getItem);
-        app.MapGet("/inventory/filter", getItems);
-        app.MapPost("/inventory", insertItem);
-        app.MapPut("/inventory/{id}", updateItem);
-        app.MapDelete("/inventory/{id}", deleteItem);
+        app.MapGet("/inventory/list", ListItems);
+        app.MapGet("/inventory/search/{productId:guid}", GetItem);
+        app.MapGet("/inventory/filter", GetItems);
+        app.MapPost("/inventory/insert", InsertItem);
+        app.MapPut("/inventory/update", UpdateItem);
+        app.MapDelete("/inventory/delete/{productId:guid}", DeleteItem); 
     }
     
-    static async Task<IResult> listItems([FromServices] InventoryContext context)
+    static async Task<IResult> ListItems([FromServices] InventoryContext context)
     {
         var items = await context.Inventorys.ToListAsync();
 
-        if( items == null  || items.Count == 0 )
+        if( items == null )
         {
             return Results.NotFound();
         }
 
         var summary = items
-            .Select(i => new InventorySummaryResponse
+            .Select(i => new InventoryDetailResponse
             (
                 ProductId: i.ProductId,
                 Stock: i.Stock
             ))
             .ToList();
 
-        return Results.Ok(summary);
+        return Results.Ok(new ListInventoryResponse(Count: summary.Count, Items: summary));
     }
 
-    static async Task<IResult> getItem(
+    static async Task<IResult> GetItem(
         [FromRoute] Guid productId,
         [FromServices] InventoryContext context )
     {
+
         var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == productId);
 
         if (item == null)
         {
-            return Results.NotFound();
+            var errorResponse = new
+            {
+                Message = "Product not found",
+                ProductId = productId
+            };
+            
+            return Results.NotFound(errorResponse);
         }
 
-        return Results.Ok(item);
+        return Results.Ok(new InventoryDetailResponse(ProductId: item.ProductId, Stock: item.Stock));
     } 
 
-    static async Task<IResult> getItems(
-        [FromBody] GetItemsRequest request,
+    static async Task<IResult> GetItems(
+        HttpContext httpContext,
         [FromServices] IValidator<GetItemsRequest> validator,
         [FromServices] InventoryContext context )
     {
-        var validatorREsult = validator.Validate(request);
+        var query = httpContext.Request.Query;
 
+        var request = GetItemsRequest.FromQuery(query);
+        if (request == null)
+        {
+            return Results.BadRequest("The query contains empty or malformed values.");
+        }
+    
+        var validatorREsult = validator.Validate(request);
         if (!validatorREsult.IsValid)
         {
             return Results.BadRequest(validatorREsult.ToDictionary());
@@ -67,17 +81,19 @@ public static class InventoryEndpoints
             .Where(i => request.ProductIds.Contains(i.ProductId))
             .ToListAsync();
 
-        if (items == null || items.Count == 0)
+        if (items == null )
         {
-            return Results.NotFound();
+            return Results.NotFound("Product not found");
         }
 
-        return Results.Ok(items);
+        var itemsResponse = items.Select(i => new InventoryDetailResponse(ProductId: i.ProductId, Stock: i.Stock));
+
+        return Results.Ok(new ListInventoryResponse(Count: itemsResponse.Count(), Items: itemsResponse)); 
         
     }
 
 
-    static async Task<IResult> insertItem(
+    static async Task<IResult> InsertItem(
         [FromBody] CreateItemRequest request,
         [FromServices] IValidator<CreateItemRequest> validator,
         [FromServices] InventoryContext context )
@@ -96,10 +112,11 @@ public static class InventoryEndpoints
 
         var item = new InventoryItem
         {
+            Id = Guid.NewGuid(),
             ProductId = request.ProductId,
             ProductName = request.ProductName,
             Stock = request.Stock,
-            StockTreshold = request.StockTreshold
+            StockThreshold = request.StockThreshold
         };
 
         context.Add(item);
@@ -110,7 +127,7 @@ public static class InventoryEndpoints
     }
 
 
-    static async Task<IResult> updateItem(
+    static async Task<IResult> UpdateItem(
         [FromBody] UpdateItemRequest request,
         [FromServices] IValidator<UpdateItemRequest> validator,
         [FromServices] InventoryContext context )
@@ -126,12 +143,12 @@ public static class InventoryEndpoints
 
         if (item == null)
         {
-            return Results.NotFound();
+            return Results.NotFound("Product not found");
         }
 
         if( request.ProductName != null )   item.ProductName = request.ProductName;
         if( request.Stock != null )         item.Stock = (int)request.Stock;
-        if( request.StockTreshold != null ) item.StockTreshold = (int)request.StockTreshold;
+        if( request.StockThreshold != null ) item.StockThreshold = (int)request.StockThreshold;
        
         await context.SaveChangesAsync();
 
@@ -139,15 +156,16 @@ public static class InventoryEndpoints
     }
 
 
-    static async Task<IResult> deleteItem(
+    static async Task<IResult> DeleteItem(
         [FromRoute] Guid productId,
         [FromServices] InventoryContext context )
     {
+
         var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == productId);
 
         if (item == null)
         {
-            return Results.NotFound();
+            return Results.NotFound("Product not found");
         }
 
         context.Remove(item);

@@ -17,14 +17,17 @@ public class ProductCreatedEventConsumer : IConsumer<ProductCreatedEvent>
 
     public async Task Consume(ConsumeContext<ProductCreatedEvent> context)
     {
-        var message = context.Message;
 
+        var message = context.Message;
+        Console.WriteLine("DEBUG CONSUMER ProductCreatedEventConsumer");
+        Console.WriteLine($"Product Inventory created: {message.ProductId} - {message.ProductName}");
         var product = new InventoryItem
         {
+            Id = Guid.NewGuid(),
             ProductId = message.ProductId,
             ProductName = message.ProductName,
             Stock = 0,
-            StockTreshold = _InventoryTreshold
+            StockThreshold = _InventoryTreshold
         };
 
         _dbContext.Inventorys.Add(product);

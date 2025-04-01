@@ -5,6 +5,6 @@ namespace Inventory.API.DTOs
         Guid ProductId, 
         string ProductName, 
         int Stock, 
-        int StockTreshold
+        int StockThreshold
     );
 }

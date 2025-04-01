@@ -22,7 +22,7 @@ namespace Inventory.API.DTOs
                 .InclusiveBetween(0, 100)
                 .WithMessage("Stock must be between 0 and 100.");
             
-            RuleFor(x => x.StockTreshold)
+            RuleFor(x => x.StockThreshold)
                 .InclusiveBetween(10, 200)
                 .WithMessage("StockTresholdMin must be between 10 and 200.");
         

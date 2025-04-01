@@ -6,20 +6,20 @@ namespace Inventory.API.Models
     public class InventoryItem
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id {get; set;} = string.Empty;
-        
-        [BsonElement("productId")]
-        public Guid ProductId {get; set;}
-        
-        [BsonElement("productName")]
-        public required string ProductName {get; set;}
-        
-        [BsonElement("stock")]
-        public int Stock {get; set;}
-        
-        [BsonElement("stockTreshold")]
-        public int StockTreshold {get; set;}
+        [BsonRepresentation(BsonType.String)]
+        public required Guid Id { get; set; }
 
+        [BsonElement("productId")]
+        [BsonRepresentation(BsonType.String)]
+        public Guid ProductId { get; set; }
+
+        [BsonElement("productName")]
+        public string ProductName { get; set; } = string.Empty;
+
+        [BsonElement("stock")]
+        public int Stock { get; set; }
+
+        [BsonElement("stockThreshold")]
+        public int StockThreshold { get; set; }
     }
 }

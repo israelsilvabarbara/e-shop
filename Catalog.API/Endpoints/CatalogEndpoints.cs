@@ -42,17 +42,13 @@ public static class CatalogEndPoints {
         [FromServices] CatalogContext context)
     {
 
-
-        Console.WriteLine("DEBUG: listItems");
         var query = httpContext.Request.Query;
-
-        Console.WriteLine("DEBUG query: " + query);
 
         var request = ItemListRequest.FromQuery(query);
 
         if (request == null)
         {
-            return Results.BadRequest("Invalid request");
+            return Results.BadRequest("The query contains empty or malformed values.");
         }
 
         var validationResult = validator.Validate(request);
