@@ -10,7 +10,7 @@ namespace Inventory.API.Models
         public string Id {get; set;} = string.Empty;
         
         [BsonElement("productId")]
-        public int ProdutctId {get; set;}
+        public Guid ProductId {get; set;}
         
         [BsonElement("productName")]
         public required string ProductName {get; set;}
@@ -18,10 +18,8 @@ namespace Inventory.API.Models
         [BsonElement("stock")]
         public int Stock {get; set;}
         
-        [BsonElement("stockTresholdMin")]
-        public int StockTresholdMin {get; set;}
-        
-        [BsonElement("stockTresholdMax")]
-        public int StockTresholdMax {get; set;}
+        [BsonElement("stockTreshold")]
+        public int StockTreshold {get; set;}
+
     }
 }

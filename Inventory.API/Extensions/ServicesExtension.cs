@@ -12,7 +12,8 @@ namespace Inventory.API.Extensions
         {
             builder.AddDatabase()
                    .AddFluentValidation()
-                   .AddRabbitMq();
+                   .AddRabbitMq()
+                   .AddSettings();
 
             return builder;            
         }
@@ -72,6 +73,7 @@ namespace Inventory.API.Extensions
         {
             builder.Services.AddMassTransit(config =>
             {
+                AddConsumers(config);
                 config.SetKebabCaseEndpointNameFormatter();
                 config.UsingRabbitMq((context, configurator)=>
                 {
@@ -109,5 +111,21 @@ namespace Inventory.API.Extensions
             
             return builder;
         }
+
+        private static void AddConsumers(IBusRegistrationConfigurator config)
+        {
+            config.AddConsumer<ProductCreatedEventConsumer>();
+            // Add more consumers as needed
+        }
+
+
+        private static WebApplicationBuilder AddSettings(this WebApplicationBuilder builder)
+        {
+            builder.Configuration.AddJsonFile(  "inventorySettings.json", 
+                                                optional: true, 
+                                                reloadOnChange: true       );
+            return builder;
+        }
+
     }
 }

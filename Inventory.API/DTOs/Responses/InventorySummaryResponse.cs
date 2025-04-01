@@ -2,7 +2,7 @@ namespace Inventory.API.DTOs
 {
     public record InventorySummaryResponse
     (
-        int ProductId,
+        Guid ProductId,
         int Stock
     );
 }

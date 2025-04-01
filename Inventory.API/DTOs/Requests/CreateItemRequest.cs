@@ -2,10 +2,9 @@ namespace Inventory.API.DTOs
 {
     public record CreateItemRequest
     (
-        int ProductId, 
+        Guid ProductId, 
         string ProductName, 
         int Stock, 
-        int StockTresholdMin, 
-        int StockTresholdMax
+        int StockTreshold
     );
 }

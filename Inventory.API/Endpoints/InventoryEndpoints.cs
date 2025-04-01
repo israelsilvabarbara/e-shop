@@ -29,7 +29,7 @@ public static class InventoryEndpoints
         var summary = items
             .Select(i => new InventorySummaryResponse
             (
-                ProductId: i.ProdutctId,
+                ProductId: i.ProductId,
                 Stock: i.Stock
             ))
             .ToList();
@@ -38,10 +38,10 @@ public static class InventoryEndpoints
     }
 
     static async Task<IResult> getItem(
-        [FromRoute] int productId,
+        [FromRoute] Guid productId,
         [FromServices] InventoryContext context )
     {
-        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProdutctId == productId);
+        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == productId);
 
         if (item == null)
         {
@@ -64,7 +64,7 @@ public static class InventoryEndpoints
         }
 
         var items = await context.Inventorys
-            .Where(i => request.ProductIds.Contains(i.ProdutctId))
+            .Where(i => request.ProductIds.Contains(i.ProductId))
             .ToListAsync();
 
         if (items == null || items.Count == 0)
@@ -89,25 +89,24 @@ public static class InventoryEndpoints
             return Results.BadRequest(validatorResultt.ToDictionary());
         }
 
-        if (await context.Inventorys.AnyAsync(i => i.ProdutctId == request.ProductId ))
+        if (await context.Inventorys.AnyAsync(i => i.ProductId == request.ProductId ))
         {
             return Results.BadRequest("Product already exists");
         }
 
         var item = new InventoryItem
         {
-            ProdutctId = request.ProductId,
+            ProductId = request.ProductId,
             ProductName = request.ProductName,
             Stock = request.Stock,
-            StockTresholdMin = request.StockTresholdMin,
-            StockTresholdMax = request.StockTresholdMax,
+            StockTreshold = request.StockTreshold
         };
 
         context.Add(item);
 
         await context.SaveChangesAsync();
 
-        return Results.Created($"/inventory/{item.ProdutctId}", item);
+        return Results.Created($"/inventory/{item.ProductId}", item);
     }
 
 
@@ -123,7 +122,7 @@ public static class InventoryEndpoints
             return Results.BadRequest(validatorResult.ToDictionary());
         }    
 
-        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProdutctId == request.ProductId);
+        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
 
         if (item == null)
         {
@@ -132,9 +131,8 @@ public static class InventoryEndpoints
 
         if( request.ProductName != null )   item.ProductName = request.ProductName;
         if( request.Stock != null )         item.Stock = (int)request.Stock;
-        if( request.StockTresholdMin != null ) item.StockTresholdMin = (int)request.StockTresholdMin;
-        if( request.StockTresholdMax != null ) item.StockTresholdMax = (int)request.StockTresholdMax;
-
+        if( request.StockTreshold != null ) item.StockTreshold = (int)request.StockTreshold;
+       
         await context.SaveChangesAsync();
 
         return Results.Ok(item);
@@ -142,10 +140,10 @@ public static class InventoryEndpoints
 
 
     static async Task<IResult> deleteItem(
-        [FromRoute] int productId,
+        [FromRoute] Guid productId,
         [FromServices] InventoryContext context )
     {
-        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProdutctId == productId);
+        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == productId);
 
         if (item == null)
         {

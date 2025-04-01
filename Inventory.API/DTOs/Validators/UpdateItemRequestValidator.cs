@@ -7,7 +7,8 @@ namespace Inventory.API.DTOs
         public UpdateItemRequestValidator()
         {
             RuleFor(x => x.ProductId)
-                .NotEmpty();
+                .Must (x => Guid.TryParse(x.ToString(), out _))
+                .WithMessage("ProductId must be a valid GUID.");
                 
             RuleFor(x => x.ProductName)
                 .NotEmpty()
@@ -21,13 +22,10 @@ namespace Inventory.API.DTOs
                 .InclusiveBetween(0, 100)
                 .WithMessage("Stock must be between 0 and 100.");
             
-            RuleFor(x => x.StockTresholdMin)
-                .InclusiveBetween(0, 100)
-                .WithMessage("StockTresholdMin must be between 0 and 100.");
-            
-            RuleFor(x => x.StockTresholdMax)
-                .InclusiveBetween(0, 100)
-                .WithMessage("StockTresholdMax must be between 0 and 100.");
+            RuleFor(x => x.StockTreshold)
+                .InclusiveBetween(10, 200)
+                .WithMessage("StockTresholdMin must be between 10 and 200.");
+        
         }
     }
 }
