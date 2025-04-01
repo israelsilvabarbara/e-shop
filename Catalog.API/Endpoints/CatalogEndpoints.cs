@@ -142,7 +142,14 @@ public static class CatalogEndPoints {
         );
 
         await publishEndpoint.Publish( productCreatedEvent );
-        return Results.Created($"/api/catalog/{catalogItem.Id}", catalogItem);
+        return Results.Created($"/api/catalog/{catalogItem.Id}", new InsertedItemResponse( Id: catalogItem.Id,
+            Name: catalogItem.Name,
+            Description: catalogItem.Description,
+            PictureFileName: catalogItem.PictureFileName,
+            PictureUri: catalogItem.PictureUri,
+            Price: catalogItem.Price,
+            CatalogBrandId: catalogItem.CatalogBrandId,
+            CatalogTypeId: catalogItem.CatalogTypeId));
     }
 
     
