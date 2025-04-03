@@ -40,6 +40,26 @@ services:
       - data
       - basket
   
+  identity-db:
+    image: mongo:latest
+    container_name: identity-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${IDENTITY_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${IDENTITY_DB_PASS}
+      MONGO_INITDB_DATABASE: ${IDENTITY_DB_NAME}
+    ports:
+      - "${IDENTITY_DB_EXTERNAL_PORT}:27017"
+    volumes:
+      - identitydata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - data
+      - identity
+  
   inventory-db:
     image: mongo:latest
     container_name: inventory-db
@@ -160,6 +180,7 @@ services:
 
 volumes:
   catalogdata:
+  identitydata:
   basketdata:
   inventorydata:
   rabbitmqdata:

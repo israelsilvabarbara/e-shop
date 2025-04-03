@@ -106,7 +106,7 @@ public static class CatalogEndPoints {
         [FromBody] CreateItemRequest request,
         [FromServices] IValidator<CreateItemRequest> validator, 
         [FromServices] CatalogContext context,
-        [FromServices] IPublishEndpoint publishEndpoint)
+        [FromServices] IPublishEndpoint eventBus)
     {
         var validationResult = validator.Validate(request);
 
@@ -137,7 +137,7 @@ public static class CatalogEndPoints {
                 EventDate: DateTime.UtcNow
         );
 
-        await publishEndpoint.Publish( productCreatedEvent );
+        await eventBus.Publish( productCreatedEvent );
         return Results.Created($"/api/catalog/{catalogItem.Id}", new InsertedItemResponse( Id: catalogItem.Id,
             Name: catalogItem.Name,
             Description: catalogItem.Description,
@@ -196,13 +196,25 @@ public static class CatalogEndPoints {
 
     static async Task<IResult> DeleteItem(
         [FromRoute] Guid id, 
-        [FromServices] CatalogContext context)
+        [FromServices] CatalogContext context,
+        [FromServices] IPublishEndpoint  eventBus)
     {
         var item = await context.CatalogItems.FindAsync(id);
         if (item == null) return Results.NotFound();
 
         context.CatalogItems.Remove(item);
         await context.SaveChangesAsync();
+
+
+        var deletedEvent = new ProductDeletedEvent
+        (
+            ProductId: item.Id,
+            ProductName: item.Name,
+            EventDate: DateTime.UtcNow
+        );
+
+        await eventBus.Publish(deletedEvent);
+
         return Results.NoContent();
     }
 
