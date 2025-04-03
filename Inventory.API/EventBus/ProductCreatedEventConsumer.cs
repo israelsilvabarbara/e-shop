@@ -1,38 +1,40 @@
-using MassTransit;
 using Inventory.API.Data;
 using Inventory.API.Models;
+using MassTransit;
 using Shared.Events;
 
-public class ProductCreatedEventConsumer : IConsumer<ProductCreatedEvent>
+namespace Inventory.API.EventBus
 {
-    private readonly InventoryContext _dbContext;
-    private readonly int _InventoryTreshold;
-
-    public ProductCreatedEventConsumer( InventoryContext dbContext, 
-                                        IConfiguration configuration)
+    public class ProductCreatedEventConsumer : IConsumer<ProductCreatedEvent>
     {
-        _dbContext = dbContext;
-        _InventoryTreshold = configuration.GetValue<int>("InventoryTreshold", 10);
-    }
+        private readonly InventoryContext _dbContext;
+        private readonly int _InventoryTreshold;
 
-    public async Task Consume(ConsumeContext<ProductCreatedEvent> context)
-    {
-
-        var message = context.Message;
-        Console.WriteLine("DEBUG CONSUMER ProductCreatedEventConsumer");
-        Console.WriteLine($"Product Inventory created: {message.ProductId} - {message.ProductName}");
-        var product = new InventoryItem
+        public ProductCreatedEventConsumer( InventoryContext dbContext, 
+                                            IConfiguration configuration)
         {
-            Id = Guid.NewGuid(),
-            ProductId = message.ProductId,
-            ProductName = message.ProductName,
-            Stock = 0,
-            StockThreshold = _InventoryTreshold
-        };
+            _dbContext = dbContext;
+            _InventoryTreshold = configuration.GetValue<int>("InventoryTreshold", 10);
+        }
 
-        _dbContext.Inventorys.Add(product);
-        await _dbContext.SaveChangesAsync();
+        public async Task Consume(ConsumeContext<ProductCreatedEvent> context)
+        {
 
-        Console.WriteLine($"Product Inventory created: {product.ProductId} - {product.ProductName}");
+            var message = context.Message;
+            
+            var product = new InventoryItem
+            {
+                Id = Guid.NewGuid(),
+                ProductId = message.ProductId,
+                ProductName = message.ProductName,
+                Stock = 0,
+                StockThreshold = _InventoryTreshold
+            };
+
+            _dbContext.Inventorys.Add(product);
+            await _dbContext.SaveChangesAsync();
+
+            Console.WriteLine($"Product Inventory created: {product.ProductId} - {product.ProductName}");
+        }
     }
 }

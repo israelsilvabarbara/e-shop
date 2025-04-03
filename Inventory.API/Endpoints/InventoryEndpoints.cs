@@ -4,6 +4,7 @@ using Inventory.API.DTOs;
 using Inventory.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.Events;
 
 public static class InventoryEndpoints
 {
@@ -14,7 +15,7 @@ public static class InventoryEndpoints
         app.MapGet("/inventory/filter", GetItems);
         app.MapPost("/inventory/insert", InsertItem);
         app.MapPut("/inventory/update", UpdateItem);
-        app.MapDelete("/inventory/delete/{productId:guid}", DeleteItem); 
+        app.MapPut("/inventory/restock", RestockItem);
     }
     
     static async Task<IResult> ListItems([FromServices] InventoryContext context)
@@ -155,23 +156,37 @@ public static class InventoryEndpoints
         return Results.Ok(item);
     }
 
-
-    static async Task<IResult> DeleteItem(
-        [FromRoute] Guid productId,
+    static async Task<IResult> RestockItem(
+        [FromBody] RestockItemRequest request,
+        [FromServices] IValidator<RestockItemRequest> validator,
         [FromServices] InventoryContext context )
     {
+        var validatorResult = validator.Validate(request);
 
-        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == productId);
+        if (!validatorResult.IsValid)
+        {
+            return Results.BadRequest(validatorResult.ToDictionary());
+        }
+
+        var item = await context.Inventorys.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
 
         if (item == null)
         {
             return Results.NotFound("Product not found");
         }
 
-        context.Remove(item);
+        item.Stock += (int)request.Quantity;
 
         await context.SaveChangesAsync();
 
-        return Results.Ok();
+        var restockResponse = new RestockResponse(
+            ProductId: item.ProductId,
+            ProductName: item.ProductName,
+            Stock: item.Stock
+        );
+        return Results.Ok(restockResponse);
     }
+
+
+ 
 }
