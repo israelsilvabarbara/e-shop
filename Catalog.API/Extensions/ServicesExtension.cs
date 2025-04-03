@@ -20,10 +20,11 @@ namespace Catalog.API.Extensions
         private static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
         {
             
-            var dbHost  = Environment.GetEnvironmentVariable("DB_HOST");
-            var dbName  = Environment.GetEnvironmentVariable("DB_NAME");
-            var dbUName = Environment.GetEnvironmentVariable("DB_USER");
-            var dbPass  = Environment.GetEnvironmentVariable("DB_PASS");
+            var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "26016";
+            var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "catalogDb";
+            var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
+            var dbPass  = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
             var connectionString = $"Host={dbHost};Database={dbName};Username={dbUName};Password={dbPass};";
 
             builder.Services.AddDbContext<CatalogContext>(options =>

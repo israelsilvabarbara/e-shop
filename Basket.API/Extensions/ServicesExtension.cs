@@ -22,30 +22,12 @@ namespace Basket.API.Extensions
         private static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
         {
             string dbHost,dbPort,dbUser,dbPass,dbName;
-
-            if ( builder.Environment.IsDevelopment() )
-            {
-                dbHost = "localhost";
-                dbPort = "27017";
-                dbUser = "admin";
-                dbPass = "secure-password";
-                dbName = "basketDB";
-            }else
-            {
-                // Retrieve environment variables for MongoDB configuration
-                dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "";
-                dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "";
-                dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "";
-                dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "";
-                dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "";
-            }
-
-            if ( string.IsNullOrWhiteSpace(dbHost) || 
-                 string.IsNullOrWhiteSpace(dbPort) || 
-                 string.IsNullOrWhiteSpace(dbName)   )
-            {
-                throw new ArgumentException($"Database configuration is missing or invalid for Basket API.\nDB_HOST: {dbHost}, DB_PORT: {dbPort}, DB_NAME: {dbName} environment variables are required.");
-            }
+            // Retrieve environment variables for MongoDB configuration
+            dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "27017";
+            dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
+            dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
+            dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "basketDb";
 
             var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPass)
                 ? $"mongodb://{dbHost}:{dbPort}" // Without authentication

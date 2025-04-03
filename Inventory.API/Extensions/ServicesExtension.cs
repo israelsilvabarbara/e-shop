@@ -1,6 +1,7 @@
 using FluentValidation;
 using Inventory.API.Data;
 using Inventory.API.DTOs;
+using Inventory.API.EventBus;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,10 +26,10 @@ namespace Inventory.API.Extensions
 
             // Retrieve environment variables for MongoDB configuration
             dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "27018";
+            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "29019";
             dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
             dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
-            dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "inventoryDB";
+            dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "inventoryDb";
             
             // Build the connection string
             var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
@@ -84,6 +85,7 @@ namespace Inventory.API.Extensions
         private static void AddConsumers(IBusRegistrationConfigurator config)
         {
             config.AddConsumer<ProductCreatedEventConsumer>();
+            config.AddConsumer<ProductDeletedEventConsumer>();
             // Add more consumers as needed
         }
 
