@@ -1,0 +1,38 @@
+### Register a New User
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com",
+    "password": "SecurePassword123!"
+}
+
+### Login
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com",
+    "password": "SecurePassword123!"
+}
+
+### Forgot Password
+POST http://localhost:5000/forgot-password
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com"
+}
+
+### Reset Password
+POST http://localhost:5000/reset-password
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com",
+    "token": "reset-token",
+    "newPassword": "NewSecurePassword123!"
+}
+
+###
+GET http://localhost:5000/users

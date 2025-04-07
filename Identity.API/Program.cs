@@ -1,3 +1,5 @@
+
+
 using Identity.API.Extensions;
 using Identity.API.Models;
 
@@ -9,5 +11,7 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.MapIdentityApi<User>();
+
+
 
 app.Run();
