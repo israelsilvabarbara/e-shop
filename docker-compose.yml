@@ -13,7 +13,7 @@ services:
     volumes:
       - catalogdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${CATALOG_DB_USER} -d ${CATALOG_DB_NAME}"]
       interval: 10s
       retries: 5
     profiles:
@@ -39,26 +39,27 @@ services:
     profiles:
       - data
       - basket
-  
+
   identity-db:
-    image: mongo:latest
+    image: postgres:latest
     container_name: identity-db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${IDENTITY_DB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${IDENTITY_DB_PASS}
-      MONGO_INITDB_DATABASE: ${IDENTITY_DB_NAME}
+      POSTGRES_USER: ${IDENTITY_DB_USER}
+      POSTGRES_PASSWORD: ${IDENTITY_DB_PASS}
+      POSTGRES_DB: ${IDENTITY_DB_NAME}
     ports:
-      - "${IDENTITY_DB_EXTERNAL_PORT}:27017"
+      - "${IDENTITY_DB_EXTERNAL_PORT}:5432"
     volumes:
-      - identitydata:/data/db
+      - identitydata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
+      test: ["CMD-SHELL", "pg_isready -U ${IDENTITY_DB_USER} -d ${IDENTITY_DB_NAME}"]
       interval: 10s
-      timeout: 5s
-      retries: 3
+      retries: 5
     profiles:
       - data
       - identity
+
+
   
   inventory-db:
     image: mongo:latest
@@ -98,6 +99,7 @@ services:
     profiles:
       - events
       - data
+      - catalog
 
   catalog-api:
     build:

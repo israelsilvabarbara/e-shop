@@ -25,7 +25,7 @@ namespace Catalog.API.Extensions
             var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "catalogDb";
             var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
             var dbPass  = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
-            var connectionString = $"Host={dbHost};Database={dbName};Username={dbUName};Password={dbPass};";
+            var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
             builder.Services.AddDbContext<CatalogContext>(options =>
                 options.UseNpgsql(connectionString));

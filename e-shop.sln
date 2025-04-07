@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Events", "Shared.Eve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.API", "Identity.API\Identity.API.csproj", "{AC573CAF-6F6F-4151-B344-8E75EBC8D8F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.KeyGen.Service", "Identity.KeyGen.Service\Identity.KeyGen.Service.csproj", "{B4654B0C-3645-4DED-902A-3015F15A1EC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,18 @@ Global
 		{AC573CAF-6F6F-4151-B344-8E75EBC8D8F7}.Release|x64.Build.0 = Release|Any CPU
 		{AC573CAF-6F6F-4151-B344-8E75EBC8D8F7}.Release|x86.ActiveCfg = Release|Any CPU
 		{AC573CAF-6F6F-4151-B344-8E75EBC8D8F7}.Release|x86.Build.0 = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|x64.Build.0 = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Debug|x86.Build.0 = Debug|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|x64.ActiveCfg = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|x64.Build.0 = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|x86.ActiveCfg = Release|Any CPU
+		{B4654B0C-3645-4DED-902A-3015F15A1EC3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
