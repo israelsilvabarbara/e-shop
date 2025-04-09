@@ -24,6 +24,14 @@ COPY --from=build /keygen /keygen
 
 # Install cron
 RUN apt-get update && apt-get install -y cron
+# Copy the cron job and entrypoint script
+COPY Identity.KeyGen.Service/cronjob /etc/cron.d/identity-keygen-cron
+COPY entrypoint.sh /usr/local/bin/
 
-# Start Identity.KeyGen.Service first, then Identity.API
-ENTRYPOINT ["/bin/bash", "-c", "/keygen/Identity.KeyGen.Service && dotnet Identity.API.dll"]
+# Set permissions for the cron job and entrypoint script
+RUN chmod 0644 /etc/cron.d/identity-keygen-cron && \
+    chmod +x /usr/local/bin/entrypoint.sh && \
+    crontab /etc/cron.d/identity-keygen-cron
+
+# Run the cron job
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

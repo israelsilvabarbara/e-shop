@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  identity-db:
+    image: postgres:latest
+    container_name: identity-db
+    environment:
+      POSTGRES_USER: ${IDENTITY_DB_USER}
+      POSTGRES_PASSWORD: ${IDENTITY_DB_PASS}
+      POSTGRES_DB: ${IDENTITY_DB_NAME}
+    ports:
+      - "${IDENTITY_DB_EXTERNAL_PORT}:5432"
+    volumes:
+      - identitydata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${IDENTITY_DB_USER} -d ${IDENTITY_DB_NAME}"]
+      interval: 10s
+      retries: 5
+    profiles:
+      - data
+      - identity
+
   catalog-db:
     image: postgres:latest
     container_name: catalog-db
@@ -39,25 +58,6 @@ services:
     profiles:
       - data
       - basket
-
-  identity-db:
-    image: postgres:latest
-    container_name: identity-db
-    environment:
-      POSTGRES_USER: ${IDENTITY_DB_USER}
-      POSTGRES_PASSWORD: ${IDENTITY_DB_PASS}
-      POSTGRES_DB: ${IDENTITY_DB_NAME}
-    ports:
-      - "${IDENTITY_DB_EXTERNAL_PORT}:5432"
-    volumes:
-      - identitydata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${IDENTITY_DB_USER} -d ${IDENTITY_DB_NAME}"]
-      interval: 10s
-      retries: 5
-    profiles:
-      - data
-      - identity
 
 
   
@@ -100,6 +100,31 @@ services:
       - events
       - data
       - catalog
+
+
+  identity-api:
+    build:
+      context: .
+      dockerfile: Identity.API/Dockerfile
+    container_name: identity-api
+    environment:
+      DB_HOST: ${IDENTITY_DB_HOST}
+      DB_PORT: ${IDENTITY_DB_EXTERNAL_PORT}
+      DB_NAME: ${IDENTITY_DB_NAME}
+      DB_USER: ${IDENTITY_DB_USER}
+      DB_PASS: ${IDENTITY_DB_PASS}
+      EVENT_HOST: ${EVENT_HOST}
+      EVENT_PORT: ${EVENT_EXTERNAL_API_PORT}
+      EVENT_USER: ${EVENT_USER}
+      EVENT_PASS: ${EVENT_PASS}
+    ports:
+      - "7070:8080"
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    profiles:
+      - apis
+      - identity
 
   catalog-api:
     build:

@@ -6,7 +6,7 @@ namespace Identity.API.Data
 {
     public class IdentityContext : IdentityDbContext<User>
     {
-        DbSet<KeyVault> KeyVaults { get; set; }
+        public DbSet<KeyVault> KeyVaults { get; set; }
         
         public IdentityContext(DbContextOptions<IdentityContext> options)
             :base(options)

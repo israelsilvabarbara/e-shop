@@ -1,8 +1,10 @@
 using Identity.API.Data;
 using Identity.API.Models;
+using Inventory.API.EventBus;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
+using Shared.Events;
 
 namespace Identity.API.Extensions
 {
@@ -11,7 +13,8 @@ namespace Identity.API.Extensions
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
             builder.AddDatabase()
-                   .AddIdentity();
+                   .AddIdentity()
+                   .AddRabbitMq();
                     
             return builder;
         }
@@ -48,24 +51,36 @@ namespace Identity.API.Extensions
             return builder;
         }
 
-
-/*         private static WebApplicationBuilder AddRSAKeyUpdater(this WebApplicationBuilder builder)
+        private static void AddConsumers(IBusRegistrationConfigurator config)
         {
-            builder.Services.AddQuartz(q =>
+            config.AddConsumer<IdentityKeyGeneratedEventConsumer>();
+            // Add more consumers as needed
+        }
+
+        private static WebApplicationBuilder AddRabbitMq(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddMassTransit(config =>
             {
-               // q.UseMicrosoftDependencyInjectionScopedJobFactory();
+                AddConsumers(config);
+                config.SetKebabCaseEndpointNameFormatter();
+                config.UsingRabbitMq((context, configurator)=>
+                {
+                    string host,port,user,pass;
+                    // Retrieve environment variables for MongoDB configuration
+                    host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "localhost";
+                    port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "5672";
+                    user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
+                    pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest";
 
-                // Define a job and map it to the KeyUpdateJob
-                var jobKey = new JobKey("KeyUpdateJob");
-                q.AddJob<KeyUpdateJob>(opts => opts.WithIdentity(jobKey));
-
-                // Define the trigger for the job (7 days, at midnight)
-                q.AddTrigger(opts => opts
-                    .ForJob(jobKey)
-                    .WithIdentity("KeyUpdateTrigger")
-                    .WithCronSchedule("0 0 0 * /7 * ?")); // Every 7 days at midnight
+                    configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
+                    {
+                        h.Username(user);
+                        h.Password(pass);
+                    });
+                });
             });
+
             return builder;
-        } */
+        }
     }
 }
