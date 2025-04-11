@@ -2,9 +2,10 @@ using Identity.KeyGen.Service.Data;
 using Identity.KeyGen.Service.Models;
 using Identity.KeyGen.Service.Services;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Shared.Events;
 
-namespace Identity.KeyGen.Service.Execution
+namespace Identity.KeyGen.Service
 {
     public class KeyUpdateExecutor
     {
@@ -18,26 +19,26 @@ namespace Identity.KeyGen.Service.Execution
             _keyGenerator = new KeyGenerator();
         }
 
+        private bool IsCronStarted() => 
+            Environment.GetEnvironmentVariable("CRON_STARTED")?.ToLower() == "true";
         public async Task ExecuteAsync()
-        {
-            // Check if the table is empty
-            var existingKeys = _dbContext.KeyVaults.FirstOrDefault();
-            if (existingKeys != null)
+        {    
+            if ( !IsCronStarted() )
             {
-                Console.WriteLine("Keys already exist. No update required.");
-                return;
-            }
+                Console.WriteLine("Service not started by cron.");
 
-            // Check if the service is started by a cron job
-            var isCronStarted = Environment.GetEnvironmentVariable("CRON_STARTED");
-            if (isCronStarted == null || isCronStarted != "true")
-            {
-                Console.WriteLine("Service not started by cron. Exiting...");
-                return;
+                Console.WriteLine("Waiting 30seconds to start the database");
+                await Task.Delay(30000);
+                var tableWithRows = await _dbContext.KeyVaults.AnyAsync();
+                if (tableWithRows )
+                {
+                    Console.WriteLine("Keys already exist in the database.");
+                    return;
+                }
             }
 
             // Generate new keys
-            var keyPair = _keyGenerator.GenerateKeyPair();
+            var keyPair = _keyGenerator.GenerateKeyPair();                
 
             // Save new keys to the database
             var newKeyVault = new KeyVault

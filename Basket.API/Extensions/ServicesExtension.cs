@@ -12,8 +12,8 @@ namespace Basket.API.Extensions
         {
 
             builder.AddDatabase()
-                   .AddFluentValidation()
-                   .AddRabbitMq();
+                   .AddFluentValidation();
+                  // .AddRabbitMq();
             
             return builder; // Return the builder to support fluent chaining
         }
@@ -24,17 +24,15 @@ namespace Basket.API.Extensions
             string dbHost,dbPort,dbUser,dbPass,dbName;
             // Retrieve environment variables for MongoDB configuration
             dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "27017";
+            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "############################################";
             dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
             dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
             dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "basketDb";
 
-            var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPass)
-                ? $"mongodb://{dbHost}:{dbPort}" // Without authentication
-                : $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
+            var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}/?authSource=admin";
 
-            Console.WriteLine("INFO: Using connection string: " + connectionString);
-            Console.WriteLine("INFO: Using database name: " + dbName);
+            Console.WriteLine("********************INFO: Using connection string: " + connectionString);
+            Console.WriteLine("********************INFO: Using database name: " + dbName);
             
             // Add DbContext to the service collection
             builder.Services.AddDbContext<BasketContext>(options =>

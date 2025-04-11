@@ -9,8 +9,8 @@ namespace Identity.KeyGen.Service.Extensions
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
             builder.AddDatabase()
-        
                    .AddRabbitMq();
+            builder.Services.AddScoped<KeyUpdateExecutor>();
 
             return builder; 
         }
@@ -20,11 +20,13 @@ namespace Identity.KeyGen.Service.Extensions
             
             var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
             var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "26016";
-            var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "catalogDb";
+            var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "identityDb";
             var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
             var dbPass  = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
             var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
+
+            Console.WriteLine("INFO: ############### Using connection string: " + connectionString);
             builder.Services.AddDbContext<IdentityContext>(options =>
                 options.UseNpgsql(connectionString));
 
@@ -36,6 +38,7 @@ namespace Identity.KeyGen.Service.Extensions
         {
             builder.Services.AddMassTransit(config =>
             {
+                Console.WriteLine("INFO: Adding MassTransit 1###############################################");
                 config.SetKebabCaseEndpointNameFormatter();
                 config.UsingRabbitMq((context, configurator)=>
                 {
@@ -46,13 +49,15 @@ namespace Identity.KeyGen.Service.Extensions
                     user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
                     pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest"; 
 
+                    Console.WriteLine("INFO: Adding MassTransit 2###############################################");
                     configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
                     {
                         h.Username(user);
                         h.Password(pass);
                     });
-
+                    Console.WriteLine("INFO: Adding MassTransit 3###############################################");
                     configurator.ConfigureEndpoints(context);
+                    Console.WriteLine("INFO: Adding MassTransit 4###############################################");
                 });
             });
             
