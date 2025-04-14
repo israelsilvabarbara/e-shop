@@ -1,12 +1,12 @@
+using MassTransit;
+
 public class EventBridge
 {
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly Logger _logger;
 
-    public EventBridge(IPublishEndpoint publishEndpoint, Logger logger)
+    public EventBridge(IPublishEndpoint publishEndpoint)
     {
         _publishEndpoint = publishEndpoint;
-        _logger = logger;
     }
 
     public async Task SendAsync<TEvent>(
@@ -21,15 +21,17 @@ public class EventBridge
         // Publish the event to the message bus
         await _publishEndpoint.Publish(@event);
 
+
+        var logEvent = new LogEvent(
+            Id: correlationId,
+            Timestamp: DateTime.UtcNow,
+            Service: originService.ToString(),
+            EventType: eventType.ToString(),
+            Status: status.ToString(),
+            Details: details
+        );
+
         // Create and send a log for the event
-        await _logger.LogAsync(new LogMessage
-        {
-            Id = correlationId,
-            Service = originService.ToString(),
-            Timestamp = DateTime.UtcNow,
-            EventType = eventType,
-            Status = status,
-            Details = details
-        });
+        await _publishEndpoint.Publish(logEvent);
     }
 }
