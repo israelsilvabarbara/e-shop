@@ -6,8 +6,8 @@ service cron start
 
 
 # Run Identity.KeyGen.Service
-#echo "Starting Identity.KeyGen.Service..."
-#exec dotnet /keygen/Identity.KeyGen.Service.dll
+echo "Starting Identity.KeyGen.Service..."
+dotnet /keygen/Identity.KeyGen.Service.dll
 
 # Run Identity.API
 echo "Starting Identity.API..."

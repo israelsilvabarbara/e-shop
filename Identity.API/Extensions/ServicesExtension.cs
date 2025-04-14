@@ -1,10 +1,8 @@
 using Identity.API.Data;
 using Identity.API.Models;
 using Inventory.API.EventBus;
-using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Shared.Events;
 
 namespace Identity.API.Extensions
 {
@@ -14,7 +12,7 @@ namespace Identity.API.Extensions
         {
             builder.AddDatabase()
                    .AddIdentity()
-                   .AddRabbitMq();
+                   .AddEventBus( consumerTypes: [ typeof(IdentityKeyGeneratedEventConsumer) ] );
                     
             return builder;
         }
@@ -48,38 +46,6 @@ namespace Identity.API.Extensions
             builder.Services.AddIdentityCore<User>()
                             .AddEntityFrameworkStores<IdentityContext>()
                             .AddApiEndpoints();
-            return builder;
-        }
-
-        private static void AddConsumers(IBusRegistrationConfigurator config)
-        {
-            config.AddConsumer<IdentityKeyGeneratedEventConsumer>();
-            // Add more consumers as needed
-        }
-
-        private static WebApplicationBuilder AddRabbitMq(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddMassTransit(config =>
-            {
-                AddConsumers(config);
-                config.SetKebabCaseEndpointNameFormatter();
-                config.UsingRabbitMq((context, configurator)=>
-                {
-                    string host,port,user,pass;
-                    // Retrieve environment variables for MongoDB configuration
-                    host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "localhost";
-                    port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "5672";
-                    user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
-                    pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest";
-
-                    configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
-                    {
-                        h.Username(user);
-                        h.Password(pass);
-                    });
-                });
-            });
-
             return builder;
         }
     }

@@ -40,5 +40,5 @@ RUN chmod 0644 /etc/cron.d/identity-keygen-cron && \
     crontab /etc/cron.d/identity-keygen-cron
 
 # Run the cron job
-#ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-ENTRYPOINT [ "dotnet", "Identity.API.dll" ]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#ENTRYPOINT [ "dotnet", "Identity.API.dll" ]
