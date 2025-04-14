@@ -7,6 +7,9 @@ builder.AddServices();
 
 var app = builder.Build();
 
+
+
+Console.WriteLine("DEBUG: Starting KeyUpdateExecutor");
 using (var scope = app.Services.CreateScope())
 {
     var executor = scope.ServiceProvider.GetRequiredService<KeyUpdateExecutor>();

@@ -25,14 +25,12 @@ namespace Identity.KeyGen.Service
         {    
             if ( !IsCronStarted() )
             {
-                Console.WriteLine("Service not started by cron.");
+                Console.WriteLine("KeyGen Info:Service not started by cron.");
 
-                Console.WriteLine("Waiting 30seconds to start the database");
-                await Task.Delay(30000);
                 var tableWithRows = await _dbContext.KeyVaults.AnyAsync();
                 if (tableWithRows )
                 {
-                    Console.WriteLine("Keys already exist in the database.");
+                    Console.WriteLine("KeyGen Info:Keys already exist in the database.");
                     return;
                 }
             }
@@ -51,7 +49,7 @@ namespace Identity.KeyGen.Service
             await _dbContext.KeyVaults.AddAsync(newKeyVault);
             await _dbContext.SaveChangesAsync();
 
-            Console.WriteLine("Keys updated and saved to the database.");
+            Console.WriteLine("KeyGen Info:Keys updated and saved to the database.");
 
             // Publish an event to Identity.API
             await _publishEndpoint.Publish(new IdentityKeyGeneratedEvent
@@ -59,7 +57,7 @@ namespace Identity.KeyGen.Service
                 EventDate: DateTime.UtcNow
             ));
 
-            Console.WriteLine("Key update event published to Identity.API.");
+            Console.WriteLine("KeyGen Info:Key update event published to Identity.API.");
         }
     }
 }
