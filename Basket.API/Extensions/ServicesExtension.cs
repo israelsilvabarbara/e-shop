@@ -12,8 +12,8 @@ namespace Basket.API.Extensions
         {
 
             builder.AddDatabase()
-                   .AddFluentValidation();
-                  // .AddRabbitMq();
+                   .AddFluentValidation()
+                   .AddRabbitMq();
             
             return builder; // Return the builder to support fluent chaining
         }
