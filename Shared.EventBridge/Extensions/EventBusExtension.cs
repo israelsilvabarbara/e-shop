@@ -1,43 +1,50 @@
 using MassTransit;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-public static class EventBusExtension
+
+namespace Shared.EventBridge.Extensions
 {
-    public static WebApplicationBuilder AddEventBus(this WebApplicationBuilder builder,IEnumerable<Type> consumerTypes)
+    public static class EventBusExtension
     {
-        builder.Services.AddScoped<EventBridge>();
-        builder.Services.AddScoped<Logger>();
-        builder.Services.AddMassTransit(config =>
+        public static IServiceCollection AddEventBus(this IServiceCollection services,IEnumerable<Type>? consumerTypes = null)
         {
-            AddConsumers(config,consumerTypes);
-            config.SetKebabCaseEndpointNameFormatter();
-            config.UsingRabbitMq((context, configurator) =>
+            services.AddScoped<EventBus>();
+            services.AddMassTransit(config =>
             {
-                var host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "localhost";
-                var port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "5672";
-                var user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
-                var pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest";
-
-                configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
+                AddConsumers(config,consumerTypes);
+                config.SetKebabCaseEndpointNameFormatter();
+                config.UsingRabbitMq((context, configurator) =>
                 {
-                    h.Username(user);
-                    h.Password(pass);
+                    var host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "israel";
+                    var port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "9999";
+                    var user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
+                    var pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest";
+
+                    configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
+                    {
+                        h.Username(user);
+                        h.Password(pass);
+                    });
+
+                    Console.WriteLine("#########################################");
+                    Console.WriteLine("#########################################"); 
+                    Console.WriteLine($"INFO: Using RabbitMQ host: {host}:{port}");
+                    configurator.ConfigureEndpoints(context);
                 });
-
-                configurator.ConfigureEndpoints(context);
             });
-        });
 
-        return builder;
-    }
+            return services;
+        }
 
 
-    private static void AddConsumers(IBusRegistrationConfigurator config,IEnumerable<Type> consumerTypes)
-    {
-        foreach (var consumer in consumerTypes)
+        private static void AddConsumers(IBusRegistrationConfigurator config,IEnumerable<Type>? consumerTypes)
         {
-            config.AddConsumer(consumer);
+            if ( consumerTypes == null) return;
+            foreach (var consumer in consumerTypes)
+            {
+                config.AddConsumer(consumer);
+            }
         }
     }
+
 }

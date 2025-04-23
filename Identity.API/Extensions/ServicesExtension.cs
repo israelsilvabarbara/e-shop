@@ -1,8 +1,9 @@
 using Identity.API.Data;
 using Identity.API.Models;
-using Inventory.API.EventBus;
+using Identity.API.EventConsumers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBridge.Extensions;
 
 namespace Identity.API.Extensions
 {
@@ -10,14 +11,14 @@ namespace Identity.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            builder.AddDatabase()
-                   .AddIdentity()
-                   .AddEventBus( consumerTypes: [ typeof(IdentityKeyGeneratedEventConsumer) ] );
+            builder.Services.AddDatabase()
+                            .AddIdentity()
+                            .AddEventBus( consumerTypes: [ typeof(IdentityKeyGeneratedEventConsumer) ] );
                     
             return builder;
         }
         
-        private static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
+        private static IServiceCollection AddDatabase(this IServiceCollection services)
         {
             
             var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
@@ -31,22 +32,22 @@ namespace Identity.API.Extensions
             Console.WriteLine("INFO: Using connection string: " + connectionString);
 
 
-            builder.Services.AddDbContext<IdentityContext>(options =>
+            services.AddDbContext<IdentityContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            return builder;
+            return services;
         }
 
-        private static WebApplicationBuilder AddIdentity(this WebApplicationBuilder builder)
+        private static IServiceCollection AddIdentity(this IServiceCollection services)
         {
-            builder.Services.AddAuthorization()
+            services.AddAuthorization()
                             .AddAuthentication()
                             .AddBearerToken(IdentityConstants.BearerScheme);
 
-            builder.Services.AddIdentityCore<User>()
+            services.AddIdentityCore<User>()
                             .AddEntityFrameworkStores<IdentityContext>()
                             .AddApiEndpoints();
-            return builder;
+            return services;
         }
     }
 }

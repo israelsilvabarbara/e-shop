@@ -87,6 +87,29 @@ services:
     networks:
       - app_network
 
+
+  logger-db:
+    image: postgres:latest
+    container_name: logger-db
+    environment:
+      POSTGRES_USER: ${LOGGER_DB_USER}
+      POSTGRES_PASSWORD: ${LOGGER_DB_PASS}
+      POSTGRES_DB: ${LOGGER_DB_NAME}
+    expose:
+      - "${LOGGER_DB_PORT}"
+    volumes:
+      - loggerdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LOGGER_DB_USER} -d ${LOGGER_DB_NAME}"]
+      interval: 10s
+      retries: 5
+    profiles:
+      - data
+      - logger
+    networks:
+      - app_network
+
+
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
@@ -220,11 +243,38 @@ services:
     networks:
       - app_network
 
+  logger-api:
+    build:
+      context: .
+      dockerfile: Logger.API/Dockerfile
+    container_name: logger-api
+    environment:
+      DB_HOST: ${LOGGER_DB_HOST}
+      DB_PORT: ${LOGGER_DB_PORT} # Internal port for PostgreSQL
+      DB_NAME: ${LOGGER_DB_NAME}
+      DB_USER: ${LOGGER_DB_USER}
+      DB_PASS: ${LOGGER_DB_PASS}
+      EVENT_HOST: ${EVENT_HOST}
+      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
+      EVENT_USER: ${EVENT_USER}
+      EVENT_PASS: ${EVENT_PASS}
+    ports:
+      - "${LOGGER_API_PORT}:8080" # API exposed externally
+    depends_on:
+      logger-db:
+        condition: service_healthy
+    profiles:
+      - apis
+      - logger
+    networks:
+      - app_network
+
 volumes:
   catalogdata:
   identitydata:
   basketdata:
   inventorydata:
+  loggerdata:
   rabbitmqdata:
 
 networks:

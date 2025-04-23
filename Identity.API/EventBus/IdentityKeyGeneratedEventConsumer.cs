@@ -1,17 +1,18 @@
 using Identity.API.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBridge.Enums;
 using Shared.Events;
 
-namespace Inventory.API.EventBus
+namespace Identity.API.EventConsumers
 {
     public class IdentityKeyGeneratedEventConsumer : IConsumer<IdentityKeyGeneratedEvent>
     {
         private readonly IdentityContext _dbContext;
-        private readonly IPublishEndpoint _eventBus;
+        private readonly EventBus _eventBus;
 
         public IdentityKeyGeneratedEventConsumer( IdentityContext dbContext, 
-                                                  IPublishEndpoint eventBus )
+                                                  EventBus eventBus )
         {
             _dbContext = dbContext;
             _eventBus = eventBus;
@@ -35,12 +36,18 @@ namespace Inventory.API.EventBus
 
             var keyEvent = new IdentityRefreshAuthorizationEvent
             (
+                Id: Guid.NewGuid(),
                 PublicKey: keyVault.PublicKey,
                 Expiration: keyVault.Expiration,
                 EventDate: DateTime.UtcNow
             );
 
-            await _eventBus.Publish(keyEvent);
+            await _eventBus.SendAsync( keyEvent, 
+                                    Services.Identity, 
+                                    LogEventType.Info, 
+                                    LogStatus.Success, 
+                                    "Key updated and sent to other services."
+                );
         }
     }
 }

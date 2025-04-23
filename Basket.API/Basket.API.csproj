@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.Events\Shared.Events.csproj" />
+    <ProjectReference Include="..\Shared.EventBridge\Shared.EventBridge.csproj" />
   </ItemGroup>
 
 </Project>

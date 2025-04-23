@@ -1,8 +1,8 @@
 using Identity.KeyGen.Service.Data;
 using Identity.KeyGen.Service.Models;
 using Identity.KeyGen.Service.Services;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBridge.Enums;
 using Shared.Events;
 
 namespace Identity.KeyGen.Service
@@ -10,12 +10,12 @@ namespace Identity.KeyGen.Service
     public class KeyUpdateExecutor
     {
         private readonly IdentityContext _dbContext;
+        private readonly EventBus _eventBus;
         private readonly KeyGenerator _keyGenerator;
-        private readonly IPublishEndpoint _publishEndpoint; 
-        public KeyUpdateExecutor(IdentityContext dbContext,  IPublishEndpoint publishEndpoint)
+        public KeyUpdateExecutor(IdentityContext dbContext, EventBus eventBus)
         {
             _dbContext = dbContext;
-            _publishEndpoint = publishEndpoint;
+            _eventBus = eventBus;
             _keyGenerator = new KeyGenerator();
         }
 
@@ -25,12 +25,9 @@ namespace Identity.KeyGen.Service
         {    
             if ( !IsCronStarted() )
             {
-                Console.WriteLine("KeyGen Info:Service not started by cron.");
-
-                var tableWithRows = await _dbContext.KeyVaults.AnyAsync();
-                if (tableWithRows )
+                var tableWithContent = await _dbContext.KeyVaults.AnyAsync();
+                if( tableWithContent )
                 {
-                    Console.WriteLine("KeyGen Info:Keys already exist in the database.");
                     return;
                 }
             }
@@ -49,15 +46,19 @@ namespace Identity.KeyGen.Service
             await _dbContext.KeyVaults.AddAsync(newKeyVault);
             await _dbContext.SaveChangesAsync();
 
-            Console.WriteLine("KeyGen Info:Keys updated and saved to the database.");
-
             // Publish an event to Identity.API
-            await _publishEndpoint.Publish(new IdentityKeyGeneratedEvent
+            var keyEvent = new IdentityKeyGeneratedEvent
             (
+                Id: Guid.NewGuid(),
                 EventDate: DateTime.UtcNow
-            ));
+            );
 
-            Console.WriteLine("KeyGen Info:Key update event published to Identity.API.");
+            await _eventBus.SendAsync( keyEvent, 
+                                    Shared.EventBridge.Enums.Services.Identity, 
+                                    LogEventType.Info, 
+                                    LogStatus.Success, 
+                                    "New KeyPair Generated.");
+
         }
     }
 }

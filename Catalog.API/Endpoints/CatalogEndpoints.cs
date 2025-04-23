@@ -1,11 +1,10 @@
-using System;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
 using FluentValidation;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBridge.Enums;
 using Shared.Events;
 
 public static class CatalogEndPoints {
@@ -106,7 +105,7 @@ public static class CatalogEndPoints {
         [FromBody] CreateItemRequest request,
         [FromServices] IValidator<CreateItemRequest> validator, 
         [FromServices] CatalogContext context,
-        [FromServices] IPublishEndpoint eventBus)
+        [FromServices] EventBus eventBus)
     {
         var validationResult = validator.Validate(request);
 
@@ -132,12 +131,14 @@ public static class CatalogEndPoints {
 
 
         var productCreatedEvent = new ProductCreatedEvent(
+                Id: Guid.NewGuid(),
                 ProductId: catalogItem.Id,
                 ProductName: catalogItem.Name,
                 EventDate: DateTime.UtcNow
         );
 
-        await eventBus.Publish( productCreatedEvent );
+        await eventBus.SendAsync( productCreatedEvent, Services.Catalog, LogEventType.Info, LogStatus.Success, $"Product {catalogItem.Name} created." );
+        
         return Results.Created($"/api/catalog/{catalogItem.Id}", new InsertedItemResponse( Id: catalogItem.Id,
             Name: catalogItem.Name,
             Description: catalogItem.Description,
@@ -197,7 +198,7 @@ public static class CatalogEndPoints {
     static async Task<IResult> DeleteItem(
         [FromRoute] Guid id, 
         [FromServices] CatalogContext context,
-        [FromServices] IPublishEndpoint  eventBus)
+        [FromServices] EventBus  eventBus)
     {
         var item = await context.CatalogItems.FindAsync(id);
         if (item == null) return Results.NotFound();
@@ -208,12 +209,13 @@ public static class CatalogEndPoints {
 
         var deletedEvent = new ProductDeletedEvent
         (
+            Id: Guid.NewGuid(),
             ProductId: item.Id,
             ProductName: item.Name,
             EventDate: DateTime.UtcNow
         );
 
-        await eventBus.Publish(deletedEvent);
+        await eventBus.SendAsync(deletedEvent, Services.Catalog, LogEventType.Info, LogStatus.Success, $"Product {item.Name} deleted.");
 
         return Results.NoContent();
     }

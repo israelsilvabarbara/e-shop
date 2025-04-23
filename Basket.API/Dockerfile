@@ -4,11 +4,15 @@ WORKDIR /src
 
 COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
 RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
-COPY Shared.Events/ ./Shared.Events/
 
+COPY Shared.EventBridge/Shared.EventBridge.csproj ./Shared.EventBridge/
+RUN dotnet restore "./Shared.EventBridge/Shared.EventBridge.csproj"
 
 COPY Basket.API/Basket.API.csproj ./Basket.API/
 RUN dotnet restore "./Basket.API/Basket.API.csproj"
+
+COPY Shared.Events/ ./Shared.Events/
+COPY Shared.EventBridge/ ./Shared.EventBridge/
 COPY Basket.API/ ./Basket.API/
 
 WORKDIR /src/Basket.API

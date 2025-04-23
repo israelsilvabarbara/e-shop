@@ -1,6 +1,7 @@
 using Identity.KeyGen.Service.Data;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Shared.EventBridge;
+using Shared.EventBridge.Extensions;
 
 namespace Identity.KeyGen.Service.Extensions
 {
@@ -8,14 +9,14 @@ namespace Identity.KeyGen.Service.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            builder.AddDatabase()
-                   .AddRabbitMq();
+            builder.Services.AddDatabase()
+                            .AddEventBus( consumerTypes: []);
             builder.Services.AddScoped<KeyUpdateExecutor>();
 
             return builder; 
         }
 
-        private static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
+        private static IServiceCollection AddDatabase(this IServiceCollection services)
         {
             var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
             var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "26016";
@@ -25,35 +26,10 @@ namespace Identity.KeyGen.Service.Extensions
             var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
 
-            builder.Services.AddDbContext<IdentityContext>(options =>
+            services.AddDbContext<IdentityContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            return builder;
-        }
-
-
-        private static WebApplicationBuilder AddRabbitMq(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddMassTransit(config =>
-            {
-                config.SetKebabCaseEndpointNameFormatter();
-                config.UsingRabbitMq((context, configurator)=>
-                {
-                    string host,port,user,pass;
-                    host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "localhost";
-                    port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "5672";
-                    user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "guest";
-                    pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "guest"; 
-
-                    configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
-                    {
-                        h.Username(user);
-                        h.Password(pass);
-                    });
-                    configurator.ConfigureEndpoints(context);
-                });
-            });           
-            return builder;
+            return services;
         }
     }
 }

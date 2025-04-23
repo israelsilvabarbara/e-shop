@@ -1,7 +1,10 @@
-public enum Services
+namespace Shared.EventBridge.Enums
 {
-    Identity,
-    Inventory,
-    Catalog,
-    Basket
+    public enum Services
+    {
+        Identity,
+        Inventory,
+        Catalog,
+        Basket
+    }
 }

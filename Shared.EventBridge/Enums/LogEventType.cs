@@ -1,8 +1,11 @@
-public enum LogEventType
+namespace Shared.EventBridge.Enums
 {
-    Info,       // General informational log
-    Warning,    // Indicates a potential issue
-    Error,      // Represents an error or failure
-    Debug,      // For debugging purposes
-    Critical    // Critical issues requiring immediate attention
+    public enum LogEventType
+    {
+        Info,       // General informational log
+        Warning,    // Indicates a potential issue
+        Error,      // Represents an error or failure
+        Debug,      // For debugging purposes
+        Critical    // Critical issues requiring immediate attention
+    }
 }

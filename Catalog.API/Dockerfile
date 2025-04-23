@@ -4,10 +4,15 @@ WORKDIR /src
 
 COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
 RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
-COPY Shared.Events/ ./Shared.Events/
+
+COPY Shared.EventBridge/Shared.EventBridge.csproj ./Shared.EventBridge/
+RUN dotnet restore "./Shared.EventBridge/Shared.EventBridge.csproj"
 
 COPY Catalog.API/Catalog.API.csproj ./Catalog.API/
 RUN dotnet restore "./Catalog.API/Catalog.API.csproj"
+
+COPY Shared.Events/ ./Shared.Events/
+COPY Shared.EventBridge/ ./Shared.EventBridge/
 COPY Catalog.API/ ./Catalog.API/
 
 WORKDIR /src/Catalog.API

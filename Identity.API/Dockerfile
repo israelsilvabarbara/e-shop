@@ -5,6 +5,9 @@ WORKDIR /src
 COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
 RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
 
+COPY Shared.EventBridge/Shared.EventBridge.csproj ./Shared.EventBridge/
+RUN dotnet restore "./Shared.EventBridge/Shared.EventBridge.csproj"
+
 # Copy Identity.API source code
 COPY Identity.API/Identity.API.csproj Identity.API/
 RUN dotnet restore Identity.API/Identity.API.csproj
@@ -17,6 +20,7 @@ RUN dotnet restore Identity.KeyGen.Service/Identity.KeyGen.Service.csproj
 
 # Build both projects
 COPY Shared.Events/ ./Shared.Events/
+COPY Shared.EventBridge/ ./Shared.EventBridge/
 COPY Identity.API/ ./Identity.API/
 COPY Identity.KeyGen.Service/ ./Identity.KeyGen.Service/
 RUN dotnet publish Identity.API/Identity.API.csproj -c $BUILD_CONFIGURATION -o /app
