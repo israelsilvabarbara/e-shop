@@ -1,15 +1,8 @@
 #!/bin/bash
 
-# Source the .env file to export variables
-if [ -f "/src/.env" ]; then
-  # Export variables from the .env file
-  export $(grep -v '^#' /src/.env | xargs)
+printenv > /tmp/env_debug.log
+printenv > /etc/environment
 
-  # Write the environment variables to /etc/environment for cron
-  printenv | sed 's/^\(.*\)$/export \1/g' > /etc/environment
-else
-  echo "WARNING: .env file not found at /src/.env"
-fi
 
 # Start the cron service
 echo "Starting cron service..."

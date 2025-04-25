@@ -29,8 +29,14 @@ RUN dotnet publish Identity.KeyGen.Service/Identity.KeyGen.Service.csproj -c $BU
 # Final runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+
+
 COPY --from=build /app .
 COPY --from=build /keygen /keygen
+
+# Copy the .env file into the container
+COPY .env /src/.env
+
 
 # Install cron
 RUN apt-get update && apt-get install -y cron

@@ -118,7 +118,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${EVENT_PASS}
     expose:
       - "${EVENT_PORT}"       # RabbitMQ internal communication port
-      - "${EVENT_MANAGEMENT_PORT}"      # Management UI internal communication port
+    ports:
+      - "${EVENT_MANAGEMENT_PORT}:15672"     # Management UI internal communication port
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq/mnesia
     healthcheck:

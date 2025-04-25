@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Logger.API.Data;
+using Logger.API.Models;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Shared.Events;
@@ -23,19 +25,51 @@ namespace Logger.API.EventBus
                 return;
             }
 
-            var origin = await _dbContext.Messages.FirstOrDefaultAsync(m => m.Id == message.Id);
 
-            if (origin == null)
-            {   
-                return;
+            const int maxRetries = 3;
+            LogMessage? origin = null;
+            for (int i = 0; i < maxRetries; i++)
+            {
+                origin = await _dbContext.Messages.FirstOrDefaultAsync(m => m.EventId == message.Id);
+                if (origin != null)
+                    break;
+                Console.WriteLine("#####################################################################################");
+                Console.WriteLine("  === RETRING: " + i);
+                Console.WriteLine("#####################################################################################");
+                
+                await Task.Delay(100); // Delay for 100ms before retrying
             }
 
             
+            if (origin == null)
+            {   
+                Console.WriteLine("#####################################################################################");
+                Console.WriteLine("*** LogConsumedEventConsumer ***");
+                Console.WriteLine("ERROR: No message found.");
+                Console.WriteLine("Json: " + JsonSerializer.Serialize(message));
+                Console.WriteLine("#####################################################################################");
+                return;
+            }
+
+            Console.WriteLine("#####################################################################################");    
+            Console.WriteLine("*** LogConsumedEventConsumer ***");
+            Console.WriteLine($"{JsonSerializer.Serialize(message)}");
+            Console.WriteLine("#####################################################################################");
 
 
+            var consumer = new LogConsumer
+            {
+                Id = Guid.NewGuid(),
+                LogMessageId = origin.Id,
+                ConsumerService = message.Service,
+                ConsumedTime = message.Timestamp,
+                Details = !string.IsNullOrEmpty(message.Details) ? message.Details : "",
+            };
 
+            await _dbContext.Consumers.AddAsync(consumer);
 
-
+            await _dbContext.SaveChangesAsync();
+        
         }
     }
 }

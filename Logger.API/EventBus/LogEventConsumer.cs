@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Logger.API.Data;
 using Logger.API.Models;
 using MassTransit;
@@ -18,11 +19,17 @@ namespace Logger.API.EventBus
         public async Task Consume(ConsumeContext<LogEvent> context)
         {
             var message = context.Message;
-            Console.WriteLine($"Received log event: {message.Id}");
-
+            var messageJson = JsonSerializer.Serialize(message, new JsonSerializerOptions
+            {
+                WriteIndented = true // Pretty-print for readability
+            });
+            Console.WriteLine("*** LogEventConsumer ***");
+            Console.WriteLine($"{messageJson}");
+            
             var LogMessage = new LogMessage
             {
-                Id = message.Id,
+                Id = Guid.NewGuid(), 
+                EventId = message.Id,
                 Timestamp = message.Timestamp,
                 Service = message.Service,
                 EventType = message.EventType,

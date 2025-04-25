@@ -1,1 +1,1 @@
-* * * * * export CRON_STARTED=true; source /etc/environment; dotnet /keygen/Identity.KeyGen.Service.dll > /proc/1/fd/1 2>/proc/1/fd/2
+*/5 * * * * export CRON_STARTED=true; source /etc/environment; dotnet /keygen/Identity.KeyGen.Service.dll > /proc/1/fd/1 2>/proc/1/fd/2

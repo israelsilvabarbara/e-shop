@@ -1,0 +1,8 @@
+﻿START TRANSACTION;
+ALTER TABLE "Messages" ADD "EventId" uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250425191524_AddEventIdToLogMessage', '9.0.3');
+
+COMMIT;
+

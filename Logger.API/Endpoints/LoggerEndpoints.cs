@@ -12,6 +12,7 @@ public static class LoggerEndpoints
         app.MapGet("/logger/ping", () => "pong");
         app.MapGet("/logger/logs", ListMessages);
         app.MapGet("/logger/logs/{service}", ListByService);
+        app.MapDelete("/logger/clear", ClearMessages);
     }
 
 
@@ -31,25 +32,40 @@ public static class LoggerEndpoints
         HttpContext httpContext,
         [FromServices] IValidator<ServiceSelectorRequest> validator,
         [FromServices] LoggerContext context )
+    {
+        var query = httpContext.Request.Query;
+
+        var request = ServiceSelectorRequest.FromQuery(query);
+
+        if (request == null)
         {
-            var query = httpContext.Request.Query;
-
-            var request = ServiceSelectorRequest.FromQuery(query);
-
-            if (request == null)
-            {
-                return Results.BadRequest("The query contains empty or malformed values.");
-            }
-
-            var validatonResult = validator.Validate(request);
-
-            if (!validatonResult.IsValid)
-            {
-                return Results.BadRequest(validatonResult.ToDictionary());
-            }
-
-            var messages = await context.Messages.Where(m => m.Service == request.Service).ToListAsync();
-
-            return Results.Ok(messages);
+            return Results.BadRequest("The query contains empty or malformed values.");
         }
+
+        var validatonResult = validator.Validate(request);
+
+        if (!validatonResult.IsValid)
+        {
+            return Results.BadRequest(validatonResult.ToDictionary());
+        }
+
+        var messages = await context.Messages.Where(m => m.Service == request.Service).ToListAsync();
+
+        return Results.Ok(messages);
+    }
+
+
+    private static async  Task<IResult> ClearMessages(
+        [FromServices] LoggerContext context
+    )
+    {
+         // Remove all rows from the Messages table
+        context.Messages.RemoveRange(await context.Messages.ToListAsync());
+
+        // Save changes to persist the deletion
+        await context.SaveChangesAsync();
+
+        return Results.Ok("All messages cleared successfully.");
+    }
+        
 }

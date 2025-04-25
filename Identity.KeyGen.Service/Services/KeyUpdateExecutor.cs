@@ -54,7 +54,7 @@ namespace Identity.KeyGen.Service
             );
 
             await _eventBus.SendAsync( keyEvent, 
-                                    Shared.EventBridge.Enums.Services.Identity, 
+                                    Shared.EventBridge.Enums.Services.IdentityKeyGen, 
                                     LogEventType.Info, 
                                     LogStatus.Success, 
                                     "New KeyPair Generated.");

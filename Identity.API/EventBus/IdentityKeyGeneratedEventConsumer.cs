@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Identity.API.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,13 @@ namespace Identity.API.EventConsumers
 
         public async Task Consume(ConsumeContext<IdentityKeyGeneratedEvent> context)
         {
-
             var message = context.Message;
+
+            Console.WriteLine("*** IdentityKeyGeneratedEventConsumer ***");
+            Console.WriteLine($"{JsonSerializer.Serialize(message)}");
             
+            await _eventBus.ConsumeAsync(message.Id, Services.Identity, "IDENTITY:Received new KeyPairs");
+
             // update internal key pairs
             var keyVault = await _dbContext.KeyVaults.FirstOrDefaultAsync();
 

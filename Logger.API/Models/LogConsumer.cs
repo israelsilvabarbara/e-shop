@@ -8,6 +8,7 @@ namespace Logger.API.Models
         public required DateTime ConsumedTime {get; set;}
         public string? Details { get; set; }
 
+        [System.Text.Json.Serialization.JsonIgnore]
         public LogMessage? LogMessage {get; set;}
     }
 }

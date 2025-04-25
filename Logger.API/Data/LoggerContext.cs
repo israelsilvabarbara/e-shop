@@ -17,7 +17,7 @@ namespace Logger.API.Data {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<LogConsumer>()
                 .HasOne(lc => lc.LogMessage)
-                .WithMany(l => l.Consumers)
+                .WithMany(lm => lm.Consumers)
                 .HasForeignKey(lc => lc.LogMessageId);
         }
     }

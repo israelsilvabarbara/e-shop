@@ -3,6 +3,7 @@ namespace Logger.API.Models
     public class LogMessage
     {
         public Guid Id { get; set; }
+        public Guid EventId { get; set; }
         public required string Service { get; set; }
         public required DateTime Timestamp { get; set; }
         public required string EventType { get; set; }
