@@ -40,6 +40,12 @@ public class EventBus
         string details
     )
     {
+
+        // Add a delay before publishing the logConsumedEvent
+        // This Avoids a race condition where the logConsumedEvent is published before the logEvent
+        //DO NOT REMOVE
+        await Task.Delay(200);
+
         var logConsumeEvent = new LogConsumedEvent
         (
             Id: consumerId,

@@ -23,8 +23,6 @@ namespace Logger.API.EventBus
             {
                 WriteIndented = true // Pretty-print for readability
             });
-            Console.WriteLine("*** LogEventConsumer ***");
-            Console.WriteLine($"{messageJson}");
             
             var LogMessage = new LogMessage
             {

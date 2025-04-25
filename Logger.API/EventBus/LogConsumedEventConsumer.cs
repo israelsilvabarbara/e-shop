@@ -25,7 +25,6 @@ namespace Logger.API.EventBus
                 return;
             }
 
-
             const int maxRetries = 3;
             LogMessage? origin = null;
             for (int i = 0; i < maxRetries; i++)
@@ -33,29 +32,14 @@ namespace Logger.API.EventBus
                 origin = await _dbContext.Messages.FirstOrDefaultAsync(m => m.EventId == message.Id);
                 if (origin != null)
                     break;
-                Console.WriteLine("#####################################################################################");
-                Console.WriteLine("  === RETRING: " + i);
-                Console.WriteLine("#####################################################################################");
-                
                 await Task.Delay(100); // Delay for 100ms before retrying
             }
 
             
             if (origin == null)
             {   
-                Console.WriteLine("#####################################################################################");
-                Console.WriteLine("*** LogConsumedEventConsumer ***");
-                Console.WriteLine("ERROR: No message found.");
-                Console.WriteLine("Json: " + JsonSerializer.Serialize(message));
-                Console.WriteLine("#####################################################################################");
                 return;
             }
-
-            Console.WriteLine("#####################################################################################");    
-            Console.WriteLine("*** LogConsumedEventConsumer ***");
-            Console.WriteLine($"{JsonSerializer.Serialize(message)}");
-            Console.WriteLine("#####################################################################################");
-
 
             var consumer = new LogConsumer
             {
