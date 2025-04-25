@@ -6,5 +6,5 @@ namespace Shared.Events
         string PublicKey,
         DateTime Expiration,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }

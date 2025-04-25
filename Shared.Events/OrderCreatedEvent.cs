@@ -8,5 +8,5 @@ namespace Shared.Events
         Guid BasketId,
         decimal TotalPrice,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }

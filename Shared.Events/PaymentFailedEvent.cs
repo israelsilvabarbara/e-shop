@@ -9,5 +9,5 @@ namespace Shared.Events
         string Code,
         string Message,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }

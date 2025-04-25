@@ -6,5 +6,5 @@ namespace Shared.Events
         Guid ProductId,
         int Stock,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }

@@ -5,5 +5,5 @@ namespace Shared.Events
         Guid Id,
         int OrderId,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }

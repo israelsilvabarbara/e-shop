@@ -6,6 +6,6 @@
         Guid ProductId,
         string ProductName,
         DateTime EventDate
-    ):BaseEvent(Id);
+    ):IEvent;
 }
 

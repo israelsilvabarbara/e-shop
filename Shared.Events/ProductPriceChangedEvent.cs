@@ -6,5 +6,5 @@ namespace Shared.Events
         Guid productId,
         decimal Price,
         DateTime EventDate
-    ):BaseEvent(Id);
+    ):IEvent;
 }

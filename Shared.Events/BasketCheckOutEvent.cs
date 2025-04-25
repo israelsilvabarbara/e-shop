@@ -7,5 +7,5 @@ namespace Shared.Events
         Guid CustomerId,
         IEnumerable<Guid> ProductIds,
         DateTime EventDate
-    ):BaseEvent(Id);
+    ):IEvent;
 }

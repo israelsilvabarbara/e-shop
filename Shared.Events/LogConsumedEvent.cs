@@ -6,5 +6,5 @@ namespace Shared.Events
         DateTime Timestamp,
         string Service,
         string Details
-    ):BaseEvent(Id);
+    ):IEvent;
 }

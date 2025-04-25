@@ -11,21 +11,18 @@ public class EventBus
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task SendAsync(
-        BaseEvent originalEvent,
+    public async Task SendAsync<TEvent>(
+        TEvent originalEvent,
         Services originService,
         LogEventType eventType,
         LogStatus status,
         string details
-    )
+    ) where TEvent : IEvent
     {
-        var correlationId = originalEvent.Id;
+        var senderId = originalEvent.Id;
 
-        // Publish the event to the message bus
-        await _publishEndpoint.Publish(originalEvent);
-
-        var newLogEvent = new LogEvent(
-            Id: correlationId,
+        var logEvent = new LogEvent(
+            Id: senderId,
             Timestamp: DateTime.UtcNow,
             Service: originService.ToString(),
             EventType: eventType.ToString(),
@@ -33,24 +30,24 @@ public class EventBus
             Details: details
         );
 
-        // Create and send a log for the event
-        await _publishEndpoint.Publish(newLogEvent);
+        await _publishEndpoint.Publish(logEvent);
+        await _publishEndpoint.Publish(originalEvent);
     }
 
     public async Task ConsumeAsync(
-        Guid Id,
+        Guid consumerId,
         Services DestinationService,
         string details
     )
     {
-        var consumeEvent = new LogConsumedEvent
+        var logConsumeEvent = new LogConsumedEvent
         (
-            Id: Id,
+            Id: consumerId,
             Timestamp: DateTime.UtcNow,
             Service: DestinationService.ToString(),
             Details: details
         );
 
-        await _publishEndpoint.Publish(consumeEvent);
+        await _publishEndpoint.Publish(logConsumeEvent);
     }
 }

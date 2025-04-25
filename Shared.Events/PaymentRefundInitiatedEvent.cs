@@ -7,5 +7,5 @@ namespace Shared.Events
         Guid PaymentId,
         DateTime PaymentDate,
         DateTime EventDate
-    ):BaseEvent(Id);
+    ):IEvent;
 }

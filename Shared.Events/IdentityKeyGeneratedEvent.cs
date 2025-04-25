@@ -4,5 +4,5 @@ namespace Shared.Events
     (
         Guid Id,
         DateTime EventDate
-    ): BaseEvent(Id);
+    ):IEvent;
 }
