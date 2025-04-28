@@ -137,6 +137,8 @@ services:
       context: .
       dockerfile: Identity.API/Dockerfile
     container_name: identity-api
+    secrets:
+      - jwt_secret
     environment:
       DB_HOST: ${IDENTITY_DB_HOST}
       DB_PORT: ${IDENTITY_DB_PORT} # Internal port for PostgreSQL
@@ -147,6 +149,7 @@ services:
       EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
     ports:
       - "${IDENTITY_API_PORT}:8080" # API exposed externally
     depends_on:
@@ -165,6 +168,8 @@ services:
       context: .
       dockerfile: Catalog.API/Dockerfile
     container_name: catalog-api
+    secrets:
+      - jwt_secret
     environment:
       DB_HOST: ${CATALOG_DB_HOST}
       DB_PORT: ${CATALOG_DB_PORT} # Internal port for PostgreSQL
@@ -175,6 +180,7 @@ services:
       EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
     ports:
       - "${CATALOG_API_PORT}:8080" # API exposed externally
     depends_on:
@@ -193,6 +199,8 @@ services:
       context: .
       dockerfile: Basket.API/Dockerfile
     container_name: basket-api
+    secrets:
+      - jwt_secret
     environment:
       DB_HOST: ${BASKET_DB_HOST}
       DB_PORT: ${BASKET_DB_PORT} # Internal port for MongoDB
@@ -203,6 +211,7 @@ services:
       EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
     ports:
       - "${BASKET_API_PORT}:8080" # API exposed externally
     depends_on:
@@ -221,6 +230,8 @@ services:
       context: .
       dockerfile: Inventory.API/Dockerfile
     container_name: inventory-api
+    secrets:
+      - jwt_secret
     environment:
       DB_HOST: ${INVENTORY_DB_HOST}
       DB_PORT: ${INVENTORY_DB_PORT} # Internal port for MongoDB
@@ -231,6 +242,7 @@ services:
       EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
     ports:
       - "${INVENTORY_API_PORT}:8080" # API exposed externally
     depends_on:
@@ -249,6 +261,8 @@ services:
       context: .
       dockerfile: Logger.API/Dockerfile
     container_name: logger-api
+    secrets:
+      - jwt_secret
     environment:
       DB_HOST: ${LOGGER_DB_HOST}
       DB_PORT: ${LOGGER_DB_PORT} # Internal port for PostgreSQL
@@ -259,6 +273,7 @@ services:
       EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
     ports:
       - "${LOGGER_API_PORT}:8080" # API exposed externally
     depends_on:
