@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.EventBridge", "Share
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logger.API", "Logger.API\Logger.API.csproj", "{8BD2B145-6164-4510-8080-B111DC61F8FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Middleware", "Shared.Middleware\Shared.Middleware.csproj", "{0198A126-C9DC-43E3-8F70-B3F233517128}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,18 @@ Global
 		{8BD2B145-6164-4510-8080-B111DC61F8FB}.Release|x64.Build.0 = Release|Any CPU
 		{8BD2B145-6164-4510-8080-B111DC61F8FB}.Release|x86.ActiveCfg = Release|Any CPU
 		{8BD2B145-6164-4510-8080-B111DC61F8FB}.Release|x86.Build.0 = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|x64.Build.0 = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Debug|x86.Build.0 = Debug|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|x64.ActiveCfg = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|x64.Build.0 = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|x86.ActiveCfg = Release|Any CPU
+		{0198A126-C9DC-43E3-8F70-B3F233517128}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

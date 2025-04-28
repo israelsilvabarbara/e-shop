@@ -29,9 +29,6 @@ namespace Identity.API.Extensions
             
             var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
-            Console.WriteLine("INFO: Using connection string: " + connectionString);
-
-
             services.AddDbContext<IdentityContext>(options =>
                 options.UseNpgsql(connectionString));
 

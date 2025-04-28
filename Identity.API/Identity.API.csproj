@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.EventBridge\Shared.EventBridge.csproj" />
+    <ProjectReference Include="..\Shared.Middleware\Shared.Middleware.csproj" />
   </ItemGroup>
   
 </Project>
