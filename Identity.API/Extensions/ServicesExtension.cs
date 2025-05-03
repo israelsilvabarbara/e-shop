@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
 
 namespace Identity.API.Extensions
@@ -13,9 +14,19 @@ namespace Identity.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Identity API",
+                    Version = "v1"
+                });
+            });
+
             builder.Services.AddDatabase()
-                            .AddIdentity(builder.Configuration)
-                            .AddEventBus(consumerTypes: [typeof(IdentityKeyGeneratedEventConsumer)]);
+                            .AddIdentity(builder.Configuration);
+                            //.AddEventBus(consumerTypes: [typeof(IdentityKeyGeneratedEventConsumer)]);
 
             return builder;
         }
@@ -37,7 +48,7 @@ namespace Identity.API.Extensions
             return services;
         }
 
-        private static IServiceCollection AddIdentity(this IServiceCollection services,IConfiguration configuration)
+        private static IServiceCollection AddIdentity(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddEntityFrameworkStores<IdentityContext>()
@@ -58,7 +69,7 @@ namespace Identity.API.Extensions
                             ValidateAudience = false,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aaaa")),
                         };
                     });
 

@@ -2,6 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
+COPY Shared.Middleware/Shared.Middleware.csproj ./Shared.Middleware/
+RUN dotnet restore "./Shared.Middleware/Shared.Middleware.csproj"
+
 COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
 RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
 
@@ -19,6 +22,7 @@ RUN dotnet restore Identity.KeyGen.Service/Identity.KeyGen.Service.csproj
 
 
 # Build both projects
+COPY Shared.Middleware/ ./Shared.Middleware/
 COPY Shared.Events/ ./Shared.Events/
 COPY Shared.EventBridge/ ./Shared.EventBridge/
 COPY Identity.API/ ./Identity.API/
