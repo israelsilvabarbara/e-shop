@@ -4,13 +4,13 @@ using Shared.Middleware.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.AddConfiguration();
+builder.AddConfiguration();
 builder.AddServices();
 
 var app = builder.Build();
 
-var swaggerEnabled = Environment.GetEnvironmentVariable("SWAGGER_ENABLED")?.ToLower() == "true";
-swaggerEnabled = true;
+var swaggerEnabled = builder.Configuration["swagger:enabled"] == "true";
+
 if (swaggerEnabled)
 {
     app.UseSwagger();

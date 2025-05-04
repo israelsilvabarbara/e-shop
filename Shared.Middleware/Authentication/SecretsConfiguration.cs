@@ -16,7 +16,7 @@ namespace Shared.Middleware.Authentication
 
             var secretsDictionary = new Dictionary<string, string?>
             {
-                { "Jwt:Secret", jwtSecret }
+                { "jwt:secret", jwtSecret }
             };
 
             return builder.AddInMemoryCollection(secretsDictionary);

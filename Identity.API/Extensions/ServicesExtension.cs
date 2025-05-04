@@ -14,8 +14,8 @@ namespace Identity.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
+            builder.Services.AddEndpointsApiExplorer()
+                            .AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -24,21 +24,21 @@ namespace Identity.API.Extensions
                 });
             });
 
-            builder.Services.AddDatabase()
-                            .AddIdentity(builder.Configuration);
-                            //.AddEventBus(consumerTypes: [typeof(IdentityKeyGeneratedEventConsumer)]);
+            builder.Services.AddDatabase(builder.Configuration)
+                            .AddIdentity(builder.Configuration)
+                            .AddEventBus(consumerTypes: [typeof(IdentityKeyGeneratedEventConsumer)]);
 
             return builder;
         }
 
-        private static IServiceCollection AddDatabase(this IServiceCollection services)
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
 
-            var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "28018";
-            var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "identityDb";
-            var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
-            var dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
+            var dbHost  = configuration["database:host"];
+            var dbPort  = configuration["database:port"];
+            var dbName  = configuration["database:name"];
+            var dbUName = configuration["database:user"];
+            var dbPass  = configuration["database:pass"];
 
             var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
@@ -62,14 +62,14 @@ namespace Identity.API.Extensions
                         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     }).AddJwtBearer(options =>
                     {
-                        var jwtSecret = configuration["Jwt:Secret"];
+                        var jwtSecret = configuration["jwt:secret"];
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidateIssuer = false,
                             ValidateAudience = false,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aaaa")),
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
                         };
                     });
 
