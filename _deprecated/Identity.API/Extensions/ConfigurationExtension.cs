@@ -8,12 +8,37 @@ namespace Identity.API.Extensions
 
         public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
         {
-            builder.Configuration.AddSwagger()
+            builder.Configuration.AddJWT()
+                                 .AddSwagger()
                                  .AddDatabase()
                                  .AddSecrets();
             return builder;
         }
 
+
+        private static IConfigurationBuilder AddJWT(this IConfigurationBuilder builder)
+        {
+            var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+            if (string.IsNullOrEmpty(jwtIssuer))
+            {
+                throw new Exception("JWT_ISSUER environment variable is not set");
+            }
+
+            if (string.IsNullOrEmpty(jwtAudience))
+            {
+                throw new Exception("JWT_AUDIENCE environment variable is not set");    
+            }
+
+            var dictionary = new Dictionary<string, string?>
+            {
+                { "jwt:issuer", jwtIssuer },
+                { "jwt:audience", jwtAudience }
+            };
+            return builder.AddInMemoryCollection(dictionary);
+
+        }
 
         private static IConfigurationBuilder AddSwagger(this IConfigurationBuilder builder)
         {
@@ -26,11 +51,11 @@ namespace Identity.API.Extensions
 
             swagger = swagger.ToLower();
 
-            var swaggerDictionary = new Dictionary<string, string?>
+            var dictionary = new Dictionary<string, string?>
             {
                 { "swagger:enabled", swagger }
             };
-            return builder.AddInMemoryCollection(swaggerDictionary);
+            return builder.AddInMemoryCollection(dictionary);
         }
 
         private static IConfigurationBuilder AddDatabase(this IConfigurationBuilder builder)
@@ -66,7 +91,7 @@ namespace Identity.API.Extensions
                 throw new Exception("DB_PASS environment variable is not set");
             }
 
-            var databaseDictionary = new Dictionary<string, string?>
+            var dictionary = new Dictionary<string, string?>
             {
                 { "database:host", dbHost },
                 { "database:port", dbPort },
@@ -74,7 +99,7 @@ namespace Identity.API.Extensions
                 { "database:user", dbUName },
                 { "database:pass", dbPass }
             };
-            return builder.AddInMemoryCollection(databaseDictionary);
+            return builder.AddInMemoryCollection(dictionary);
         }
     }
 }

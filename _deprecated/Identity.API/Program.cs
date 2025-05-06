@@ -9,19 +9,18 @@ builder.AddServices();
 
 var app = builder.Build();
 
-var swaggerEnabled = builder.Configuration["swagger:enabled"] == "true";
+var swaggerEnabled = builder.Configuration["swagger:enabled"]!.Equals("true", StringComparison.CurrentCultureIgnoreCase);
 
 if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseAuthenticationMiddleware();
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
-app.MapIdentityApi<IdentityUser>();
 
+app.MapIdentityApi<IdentityUser>();
+app.UseHttpsRedirection();
 
 
 app.Run();

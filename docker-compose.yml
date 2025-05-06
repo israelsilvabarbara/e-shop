@@ -1,27 +1,6 @@
 version: '3.8'
 
 services:
-  identity-db:
-    image: postgres:latest
-    container_name: identity-db
-    environment:
-      POSTGRES_USER: ${IDENTITY_DB_USER}
-      POSTGRES_PASSWORD: ${IDENTITY_DB_PASS}
-      POSTGRES_DB: ${IDENTITY_DB_NAME}
-    expose:
-      - "${IDENTITY_DB_PORT}"
-    volumes:
-      - identitydata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${IDENTITY_DB_USER} -d ${IDENTITY_DB_NAME}"]
-      interval: 10s
-      retries: 5
-    profiles:
-      - data
-      - identity
-    networks:
-      - app_network
-
   catalog-db:
     image: postgres:latest
     container_name: catalog-db
@@ -129,36 +108,6 @@ services:
     profiles:
       - event
       - data
-    networks:
-      - app_network
-
-  identity-api:
-    build:
-      context: .
-      dockerfile: Identity.API/Dockerfile
-    container_name: identity-api
-    environment:
-      DB_HOST: ${IDENTITY_DB_HOST}
-      DB_PORT: ${IDENTITY_DB_PORT} # Internal port for PostgreSQL
-      DB_NAME: ${IDENTITY_DB_NAME}
-      DB_USER: ${IDENTITY_DB_USER}
-      DB_PASS: ${IDENTITY_DB_PASS}
-      EVENT_HOST: ${EVENT_HOST}
-      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
-      EVENT_USER: ${EVENT_USER}
-      EVENT_PASS: ${EVENT_PASS}
-      SWAGGER_ENABLED: ${SWAGGER_ENABLED}
-      JWT_SECRET: ${JWT_SECRET}
-    ports:
-      - "${IDENTITY_API_PORT}:8080" # API exposed externally
-    depends_on:
-      identity-db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    profiles:
-      - apis
-      - identity
     networks:
       - app_network
 
