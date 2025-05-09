@@ -1,6 +1,29 @@
 version: '3.8'
 
 services:
+  keycloak-db:
+    image: postgres:latest
+    container_name: keycloak-db
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASS}
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+    expose:
+      - "${KEYCLOAK_DB_PORT}"
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER} -d ${KEYCLOAK_DB_NAME}"]
+      interval: 10s
+      retries: 5
+    networks:
+      - app_network
+    profiles:
+      - data
+      - keycloak
+
+
+
   catalog-db:
     image: postgres:latest
     container_name: catalog-db
@@ -111,6 +134,29 @@ services:
     networks:
       - app_network
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: ${KEYCLOAK_DB_HOST}
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASS}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASS}
+    command: start-dev
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    profiles:
+      - keycloak
+      - apis
+    networks:
+      - app_network
+
   catalog-api:
     build:
       context: .
@@ -127,6 +173,11 @@ services:
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_PORT: ${KEYCLOAK_PORT}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE}
+      KEYCLOAK_REQUIRE_HTTPS_METADATA: ${KEYCLOAK_REQUIRE_HTTPS_METADATA}
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "${CATALOG_API_PORT}:8080" # API exposed externally
@@ -236,6 +287,7 @@ volumes:
   inventorydata:
   loggerdata:
   rabbitmqdata:
+  keycloak_data:
 
 networks:
   app_network:
