@@ -36,26 +36,27 @@ public static class CatalogEndPoints {
         
 
     static async Task<IResult> ListItems(
-        HttpContext httpContext, 
-        [FromServices] IValidator<ItemListRequest> validator, 
+        [AsParameters] FilterQueryRequest filter,
+        [AsParameters] PaginationQueryRequest pagination,
+        [FromServices] IValidator<FilterQueryRequest> filterValidator, 
+        [FromServices] IValidator<PaginationQueryRequest> paginationValidator,
         [FromServices] CatalogContext context)
     {
 
-        var query = httpContext.Request.Query;
+        var filterValidationResult = filterValidator.Validate(filter);
 
-        var request = ItemListRequest.FromQuery(query);
-
-        if (request == null)
+        if (!filterValidationResult.IsValid)
         {
-            return Results.BadRequest("The query contains empty or malformed values.");
+            return Results.BadRequest(filterValidationResult.ToDictionary());
         }
 
-        var validationResult = validator.Validate(request);
+        var paginationValidationResult = paginationValidator.Validate(pagination);
 
-        if (!validationResult.IsValid)
+        if(!paginationValidationResult.IsValid)
         {
-            return Results.BadRequest(validationResult.ToDictionary());
+            return Results.BadRequest(paginationValidationResult.ToDictionary());
         }
+
 
         var filteredCatalog = context.CatalogItems
             .Include(p => p.CatalogBrand) // Eagerly load CatalogBrand
@@ -64,7 +65,6 @@ public static class CatalogEndPoints {
 
         // Apply filters
 
-        var filter = request.Filter;
         if (filter.MinPrice.HasValue)
             filteredCatalog = filteredCatalog.Where(p => p.Price >= filter.MinPrice.Value);
 
@@ -78,15 +78,14 @@ public static class CatalogEndPoints {
             filteredCatalog = filteredCatalog.Where(p => p.CatalogBrand.Brand == filter.Brand);
 
         // Apply pagination
-        var pagination = request.Pagination;
         var paginatedCatalog = filteredCatalog
-            .Skip((pagination.PageNumber - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
+            .Skip((pagination.Number - 1) * pagination.Size)
+            .Take(pagination.Size)
             .ToList();
 
         var count = await filteredCatalog.CountAsync();
 
-        var paginationResponse = new PaginationResponse<CatalogItem>( count, request.Pagination, request.Filter, paginatedCatalog );
+        var paginationResponse = new PaginationResponse<CatalogItem>( count, paginatedCatalog );
 
         return Results.Ok(paginationResponse);
     }

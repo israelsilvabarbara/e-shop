@@ -1,8 +1,11 @@
+using System.Reflection;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
+using Shared.Keycloak.Extensions;
 
 namespace Catalog.API.Extensions
 {
@@ -10,21 +13,43 @@ namespace Catalog.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddDatabase()
+            var config = builder.Configuration;
+            builder.Services.AddSwagger()
+                            .AddDatabase(config)
                             .AddFluentValidation()
-                            .AddEventBus( consumerTypes: []);
+                            .AddEventBus( consumerTypes: [])
+                            .AddKeycloakAuthentication(config);
 
             return builder; 
         }
 
-        private static IServiceCollection AddDatabase(this IServiceCollection services)
+
+
+        private static IServiceCollection AddSwagger(this IServiceCollection services)
+        {
+            services.AddEndpointsApiExplorer()
+                    .AddSwaggerGen(options =>
+                    {
+                        options.SwaggerDoc("v1", new OpenApiInfo
+                        {
+                            Title = "Catalog API",
+                            Version = "v1"
+                        });
+
+                 });
+
+            return services;
+
+        }
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             
-            var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var dbPort  = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-            var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "catalogDb";
-            var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
-            var dbPass  = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
+            var dbHost = configuration["database:host"];
+            var dbPort = configuration["database:port"];
+            var dbName = configuration["database:name"];
+            var dbUName = configuration["database:user"];
+            var dbPass = configuration["database:pass"];
+
             var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
 
             services.AddDbContext<CatalogContext>(options =>
@@ -37,13 +62,14 @@ namespace Catalog.API.Extensions
         {
             
             services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
-            services.AddValidatorsFromAssemblyContaining<FilterRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<InsertBrandRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<InsertTypeRequestValidator>();
-            services.AddValidatorsFromAssemblyContaining<ItemListRequestValidator>();
-            services.AddValidatorsFromAssemblyContaining<PaginationRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<FilterQueryRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<PaginationQueryRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<UpdateItemRequestValidator>();
             return services;
         }
+
+
     }
 }
