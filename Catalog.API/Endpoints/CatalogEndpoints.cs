@@ -2,6 +2,7 @@ using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared.EventBridge.Enums;
@@ -11,22 +12,24 @@ public static class CatalogEndPoints {
 
     public static void MapCatalogEndpoints(this IEndpointRouteBuilder app) 
     {
-        app.MapGet("/catalog/ping", () => "pong");
-        app.MapGet("/catalog/list", ListItems);
-        app.MapGet("/catalog/search/{id:guid}", SearchItem);
-        app.MapPost("/catalog/insert", InsertItem);
-        app.MapPut("/catalog/update", UpdateItem);
-        app.MapDelete("/catalog/delete/{id:guid}", DeleteItem); 
-       
-        app.MapGet("/catalog/type/list", ListTypes);
-        app.MapGet("/catalog/type/search/{id:guid}", SearchType);
-        app.MapPost("/catalog/type/insert", InsertType);
-        app.MapDelete("/catalog/type/delete/{id:guid}", DeleteType);
+        var publicGroup = app.MapGroup("/catalog");
+        var protectedGroup = app.MapGroup("/catalog").RequireAuthorization();
         
-        app.MapGet("/catalog/brand/list", ListBrands);
-        app.MapGet("/catalog/brand/search/{id:guid}", SearchBrand);
-        app.MapPost("/catalog/brand/insert", InsertBrand);
-        app.MapDelete("/catalog/brand/delete/{id:guid}", DeleteBrand ); 
+        publicGroup.MapGet("/health", () => "ok");
+        publicGroup.MapGet("/list", ListItems);
+        publicGroup.MapGet("/search/{id:guid}", SearchItem);
+        publicGroup.MapGet("/type/list", ListTypes);
+        publicGroup.MapGet("/type/search/{id:guid}", SearchType);
+        publicGroup.MapGet("/brand/list", ListBrands);
+        publicGroup.MapGet("/brand/search/{id:guid}", SearchBrand);
+             
+        protectedGroup.MapPost("/insert", InsertItem);
+        protectedGroup.MapPut("/update", UpdateItem);
+        protectedGroup.MapDelete("/delete/{id:guid}", DeleteItem); 
+        protectedGroup.MapPost("/type/insert", InsertType);
+        protectedGroup.MapDelete("/type/delete/{id:guid}", DeleteType);
+        protectedGroup.MapPost("/brand/insert", InsertBrand);
+        protectedGroup.MapDelete("/brand/delete/{id:guid}", DeleteBrand ); 
 
         app.MapFallback(NotFoundEndpoint); 
     }
