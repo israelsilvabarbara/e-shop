@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   keycloak-db:
     image: postgres:latest
@@ -147,7 +145,7 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASS}
     command: start-dev
     ports:
-      - "${KEYCLOAK_PORT}:8080"
+      - "${KEYCLOAK_API_PORT}:${KEYCLOAK_PORT}"
     depends_on:
       keycloak-db:
         condition: service_healthy
@@ -175,6 +173,8 @@ services:
       SWAGGER_ENABLED: ${SWAGGER_ENABLED}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
       KEYCLOAK_PORT: ${KEYCLOAK_PORT}
+      KEYCLOAK_API_URL: ${KEYCLOAK_API_URL}
+      KEYCLOAK_API_PORT: ${KEYCLOAK_API_PORT}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
       KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE}
       KEYCLOAK_REQUIRE_HTTPS_METADATA: ${KEYCLOAK_REQUIRE_HTTPS_METADATA}

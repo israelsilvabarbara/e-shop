@@ -9,13 +9,32 @@ namespace Shared.Keycloak.Extensions
     {
         public static IServiceCollection AddKeycloakAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var keycloakUrl = configuration["keycloak:url"];
-            var keycloakPort = configuration["keycloak:port"];
+                 // Get Keycloak variables from configuration
+            var keycloakInternalUrl = configuration["keycloak:url"]; // Inside Docker
+            var keycloakInternalPort = configuration["keycloak:port"];
+            var keycloakApiUrl = configuration["keycloak:apiUrl"]; // External (Frontend, other services)
+            var keycloakApiPort = configuration["keycloak:apiPort"];
             var realm = configuration["keycloak:realm"];
             var audience = configuration["keycloak:audience"];
-            var authority = $"{keycloakUrl}:{keycloakPort}/realms/{realm}";
             var isRequiredHttpsMetadata = configuration["keycloak:requireHttpsMetadata"] == "true";
-            
+
+            // Set external authority for issuer validation
+            var authority = $"{keycloakApiUrl}:{keycloakApiPort}/realms/{realm}";
+            // Set internal Keycloak URL for fetching public keys
+            var keycloakCertsUrl = $"{keycloakInternalUrl}:{keycloakInternalPort}/realms/{realm}/protocol/openid-connect/certs";
+
+            Console.WriteLine("##############################################################");
+            Console.WriteLine($"DEBUG: Keycloak Internal URL: {keycloakInternalUrl}");
+            Console.WriteLine($"DEBUG: Keycloak Internal Port: {keycloakInternalPort}");
+            Console.WriteLine($"DEBUG: Keycloak API URL: {keycloakApiUrl}");
+            Console.WriteLine($"DEBUG: Keycloak API Port: {keycloakApiPort}");
+            Console.WriteLine($"DEBUG: Keycloak Realm: {realm}");
+            Console.WriteLine($"DEBUG: Keycloak Audience: {audience}");
+            Console.WriteLine($"DEBUG: Keycloak Authority (Issuer Validation): {authority}");
+            Console.WriteLine($"DEBUG: Keycloak Certs URL: {keycloakCertsUrl}");
+            Console.WriteLine($"DEBUG: Require HTTPS Metadata: {isRequiredHttpsMetadata}");
+            Console.WriteLine("##############################################################");
+
             services.AddAuthorization()
                     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
@@ -27,13 +46,8 @@ namespace Shared.Keycloak.Extensions
                         {
                             OnMessageReceived = context =>
                             {
-                                var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                                var token = context.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
                                 context.Token = token;
-                                return Task.CompletedTask;
-                            },
-                            OnTokenValidated = context =>
-                            {
-                                // Custom validation logic can go here if needed
                                 return Task.CompletedTask;
                             }
                         };
@@ -41,9 +55,38 @@ namespace Shared.Keycloak.Extensions
                         {
                             ValidateIssuer = true,
                             ValidIssuer = authority,
+
                             ValidateAudience = true,
-                            ValidAudience = audience,
+                            ValidAudiences = [audience],
+                            
                             ValidateIssuerSigningKey = true,
+                            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                            {
+                                // Fetch public keys dynamically from Keycloak
+                                var client = new HttpClient();
+                                var json = client.GetStringAsync(keycloakCertsUrl).Result;
+
+                                var keys = new JsonWebKeySet(json).Keys;
+
+                                Console.WriteLine("DEBUG: Found {0} keys", keys.Count);
+                                var keyList = keys.Where(k => k.Kid == kid).ToList(); 
+
+                                if (keyList.Count == 0)
+                                {
+                                    Console.WriteLine("DEBUG: No matching key found");
+                                }else
+                                {
+                                    Console.WriteLine("###########################################################");
+                                    Console.WriteLine("DEBUG: Found {0} matching keys", keyList.Count);
+                                    foreach (var key in keyList)
+                                    {
+                                        Console.WriteLine("DEBUG: Key: {0}", key.KeyId);
+                                    }
+                                    Console.WriteLine("###########################################################");
+                                }
+                                
+                                return keys.Where(k => k.Kid == kid);
+                            },
                             ValidateLifetime = true
                         };
                     });
