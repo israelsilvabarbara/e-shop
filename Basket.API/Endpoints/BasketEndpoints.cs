@@ -12,18 +12,22 @@ namespace Basket.API.Endpoints
     {
         public static void MapBasketEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapGet("/basket",listBaskets);
-            app.MapGet("/basket/{buyerId}", listBasketItems);
-            app.MapPost("/basket/item", insertBasketItem);
-            app.MapPut("/basket/item", updateBasket);
-            app.MapPut("/basket/item/increment", incrementBasketItemAmout);
-            app.MapPut("/basket/item/decrement", decrementBasketItemAmout);
-            app.MapDelete("/basket/{buyerId}", deleteBasket);
-            app.MapDelete("/basket/item", deleteBasketItem);
+            var protectedGroup = app.MapGroup("/basket").RequireAuthorization();
+
+
+            protectedGroup.MapGet("/list",ListBaskets);
+            protectedGroup.MapGet("/search/{buyerId}", ListBasketItems);
+            protectedGroup.MapPost("/item", InsertBasketItem);
+            protectedGroup.MapPut("/item", UpdateBasket);
+            protectedGroup.MapPut("/item/increment", IncrementBasketItemAmout);
+            protectedGroup.MapPut("/item/decrement", DecrementBasketItemAmout);
+            
+            protectedGroup.MapDelete("/item/{buyerId}", DeleteBasket);
+            protectedGroup.MapDelete("/item", DeleteBasketItem);
         }
 
 
-        public static async Task<IResult> listBaskets( [FromServices] BasketContext context )
+        public static async Task<IResult> ListBaskets( [FromServices] BasketContext context )
         {
             var baskets = await context.Baskets.ToListAsync();
 
@@ -34,7 +38,7 @@ namespace Basket.API.Endpoints
         }
 
 
-        public static async Task<IResult> listBasketItems(
+        public static async Task<IResult> ListBasketItems(
             [FromRoute] string buyerId, 
             [FromServices] BasketContext context )
         {
@@ -51,7 +55,7 @@ namespace Basket.API.Endpoints
         }
 
 
-        public static async Task<IResult> insertBasketItem( 
+        public static async Task<IResult> InsertBasketItem( 
             [FromBody] CreateBasketItemRequest request, 
             [FromServices] IValidator<CreateBasketItemRequest> validator, 
             [FromServices] BasketContext context)
@@ -100,7 +104,7 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> updateBasket(
+        private static async Task<IResult> UpdateBasket(
             [FromBody] UpdateBasketItemRequest request,
             [FromServices] IValidator<UpdateBasketItemRequest> validator,
             [FromServices] BasketContext context )
@@ -133,7 +137,7 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> incrementBasketItemAmout(
+        private static async Task<IResult> IncrementBasketItemAmout(
             [FromBody] BasketItemRequest request,
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
@@ -166,7 +170,7 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> decrementBasketItemAmout( 
+        private static async Task<IResult> DecrementBasketItemAmout( 
             [FromBody] BasketItemRequest request, 
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
@@ -196,14 +200,6 @@ namespace Basket.API.Endpoints
             {
                 basketItem.Quantity--;
             }
-            //UNCOMMENT IF YOU WANT TO DELETE THE ITEM
-            /* 
-            else
-            {
-                // COULD BE IGNORED DEPENDING ON BUSINESS LOGIC 
-                basket.Items.Remove(basketItem);
-            } 
-            */
 
             await context.SaveChangesAsync();
 
@@ -212,7 +208,7 @@ namespace Basket.API.Endpoints
         }
 
 
-        private static async Task<IResult> deleteBasket( 
+        private static async Task<IResult> DeleteBasket( 
             string buyer,
             [FromServices] BasketContext context )
         {
@@ -235,7 +231,7 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> deleteBasketItem(
+        private static async Task<IResult> DeleteBasketItem(
             [FromBody] BasketItemRequest request,
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )

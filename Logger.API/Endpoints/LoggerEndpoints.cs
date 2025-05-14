@@ -9,10 +9,13 @@ public static class LoggerEndpoints
 {
     public static void MapLoggerEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/logger/ping", () => "pong");
-        app.MapGet("/logger/logs", ListMessages);
-        app.MapGet("/logger/logs/{service}", ListByService);
-        app.MapDelete("/logger/clear", ClearMessages);
+        var publicGroup = app.MapGroup("/logger");
+        var protectedGroup = app.MapGroup("/logger").RequireAuthorization();
+
+        publicGroup.MapGet("/health", () => "ok");
+        protectedGroup.MapGet("/logs", ListMessages);
+        protectedGroup.MapGet("/logs/{service}", ListByService);
+        protectedGroup.MapDelete("/clear", ClearMessages);
     }
 
 

@@ -10,12 +10,14 @@ public static class InventoryEndpoints
 {
     public static void MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/inventory/list", ListItems);
-        app.MapGet("/inventory/search/{productId:guid}", GetItem);
-        app.MapGet("/inventory/filter", GetItems);
-        app.MapPost("/inventory/insert", InsertItem);
-        app.MapPut("/inventory/update", UpdateItem);
-        app.MapPut("/inventory/restock", RestockItem);
+        var protectedGroup = app.MapGroup("/inventory").RequireAuthorization();
+        
+        protectedGroup.MapGet("/list", ListItems);
+        protectedGroup.MapGet("/search/{productId:guid}", GetItem);
+        protectedGroup.MapGet("/filter", GetItems);
+        protectedGroup.MapPost("/insert", InsertItem);
+        protectedGroup.MapPut("/update", UpdateItem);
+        protectedGroup.MapPut("/restock", RestockItem);
     }
     
     static async Task<IResult> ListItems([FromServices] InventoryContext context)

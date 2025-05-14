@@ -1,3 +1,4 @@
+using Catalog.API.Endpoints;
 using Catalog.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

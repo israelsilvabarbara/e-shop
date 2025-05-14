@@ -2,7 +2,7 @@
 using Shared.EventBridge.Extensions;
 using Shared.Keycloak.Extensions;
 
-namespace Catalog.API.Extensions
+namespace Basket.API.Extensions
 {
     public static class ConfigurationExtensions
     {

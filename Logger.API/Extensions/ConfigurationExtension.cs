@@ -2,7 +2,7 @@
 using Shared.EventBridge.Extensions;
 using Shared.Keycloak.Extensions;
 
-namespace Catalog.API.Extensions
+namespace Logger.API.Extensions
 {
     public static class ConfigurationExtensions
     {
@@ -12,6 +12,7 @@ namespace Catalog.API.Extensions
                                  .AddSwagger()
                                  .AddEventBus()
                                  .AddKeycloakAuthentication();
+                                 
             return builder;
         }
 

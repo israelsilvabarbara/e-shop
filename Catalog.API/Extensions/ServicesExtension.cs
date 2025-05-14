@@ -13,12 +13,12 @@ namespace Catalog.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            var config = builder.Configuration;
+            var configuration = builder.Configuration;
             builder.Services.AddSwagger()
-                            .AddDatabase(config)
+                            .AddDatabase(configuration)
                             .AddFluentValidation()
-                            .AddEventBus( consumerTypes: [])
-                            .AddKeycloakAuthentication(config);
+                            .AddEventBus( configuration, consumerTypes: [])
+                            .AddKeycloakAuthentication(configuration);
 
             return builder; 
         }

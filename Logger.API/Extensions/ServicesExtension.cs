@@ -5,38 +5,89 @@ using Logger.API.Data;
 using Logger.API.DTOs;
 using Logger.API.EventBus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
+using Shared.Keycloak.Extensions;
 
-public static class ServicesExtension
+
+namespace Logger.API.Extensions
 {
-    public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
+
+    public static class ServicesExtension
     {
-        builder.Services.AddDatabase()
-                        .AddFluentValidation()
-                        .AddEventBus( [ typeof(LogEventConsumer),
-                                        typeof(LogConsumedEventConsumer)]);
-        return builder;
-    }
+        public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
+        {
+            var configuration = builder.Configuration;
+            builder.Services.AddDatabase(configuration)
+                            .AddSwagger()
+                            .AddFluentValidation()
+                            .AddKeycloakAuthentication(configuration)
+                            .AddEventBus(configuration,
+                                        consumerTypes: [ typeof(LogEventConsumer),
+                                                     typeof(LogConsumedEventConsumer)]);
+            return builder;
+        }
 
-    private static IServiceCollection AddFluentValidation(this IServiceCollection services)
-    {
-        services.AddValidatorsFromAssemblyContaining<ServiceSelectorRequestValidator>();
-        return services;
-    }
+         private static IServiceCollection AddSwagger(this IServiceCollection services)
+        {
+            services.AddEndpointsApiExplorer()
+                    .AddSwaggerGen(options =>
+                    {
+                        options.SwaggerDoc("v1", new OpenApiInfo
+                        {
+                            Title = "Logger API",
+                            Version = "v1"
+                        });
+                        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.Http,
+                            Scheme = "Bearer",
+                            BearerFormat = "JWT",
+                            In = ParameterLocation.Header,
+                            Description = "Enter 'Bearer {token}'"
+                        });
+                        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    }
+                                },
+                                Array.Empty<string>()
+                            }
+                        });
+                 });
 
-    private static IServiceCollection AddDatabase(this IServiceCollection services)
-    {
+            return services;
 
-        var dbHost  = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-        var dbPort  = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-        var dbName  = Environment.GetEnvironmentVariable("DB_NAME") ?? "loggerDb";
-        var dbUName = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
-        var dbPass  = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
-        var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
+        }
 
-        services.AddDbContext<LoggerContext>(options =>
-            options.UseNpgsql(connectionString));
 
-        return services;
+        private static IServiceCollection AddFluentValidation(this IServiceCollection services)
+        {
+            services.AddValidatorsFromAssemblyContaining<ServiceSelectorRequestValidator>();
+            return services;
+        }
+
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var dbHost = configuration["database:host"];
+            var dbPort = configuration["database:port"];
+            var dbName = configuration["database:name"];
+            var dbUName = configuration["database:user"];
+            var dbPass = configuration["database:pass"];
+
+            var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUName};Password={dbPass};";
+
+            services.AddDbContext<LoggerContext>(options =>
+                options.UseNpgsql(connectionString));
+
+            return services;
+        }
     }
 }

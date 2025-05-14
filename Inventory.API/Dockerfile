@@ -2,6 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
+COPY Shared.Keycloak/Shared.Keycloak.csproj ./Shared.Keycloak/
+RUN dotnet restore "./Shared.Keycloak/Shared.Keycloak.csproj"
 
 COPY Shared.Events/Shared.Events.csproj ./Shared.Events/
 RUN dotnet restore "./Shared.Events/Shared.Events.csproj"
@@ -12,6 +14,7 @@ RUN dotnet restore "./Shared.EventBridge/Shared.EventBridge.csproj"
 COPY Inventory.API/Inventory.API.csproj ./Inventory.API/
 RUN dotnet restore "./Inventory.API/Inventory.API.csproj"
 
+COPY Shared.Keycloak/ ./Shared.Keycloak/
 COPY Shared.Events/ ./Shared.Events/
 COPY Shared.EventBridge/ ./Shared.EventBridge/
 COPY Inventory.API/ ./Inventory.API/

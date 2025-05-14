@@ -2,7 +2,7 @@
 using Shared.EventBridge.Extensions;
 using Shared.Keycloak.Extensions;
 
-namespace Catalog.API.Extensions
+namespace Inventory.API.Extensions
 {
     public static class ConfigurationExtensions
     {
@@ -12,6 +12,10 @@ namespace Catalog.API.Extensions
                                  .AddSwagger()
                                  .AddEventBus()
                                  .AddKeycloakAuthentication();
+                                 
+            builder.Configuration.AddJsonFile(  "inventorySettings.json", 
+                                                optional: true, 
+                                                reloadOnChange: true       );
             return builder;
         }
 

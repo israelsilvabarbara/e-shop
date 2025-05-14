@@ -4,6 +4,7 @@ using Inventory.API.DTOs;
 using Inventory.API.EventBus;
 using Microsoft.EntityFrameworkCore;
 using Shared.EventBridge.Extensions;
+using Shared.Keycloak.Extensions;
 
 namespace Inventory.API.Extensions
 {
@@ -11,60 +12,48 @@ namespace Inventory.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-            builder.AddSettings();
+            var configuration = builder.Configuration;
 
-            builder.Services.AddDatabase()
+            builder.Services.AddDatabase(configuration)
                             .AddFluentValidation()
-                            .AddEventBus( consumerTypes: [typeof(ProductCreatedEventConsumer),
-                                                          typeof(ProductDeletedEventConsumer)  ]);
+                            .AddKeycloakAuthentication(configuration)
+                            .AddEventBus(configuration,
+                                        consumerTypes: [typeof(ProductCreatedEventConsumer),
+                                                        typeof(ProductDeletedEventConsumer)  ]);
             return builder;
         }
 
 
-        private static IServiceCollection AddDatabase(this IServiceCollection services)
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            string dbHost,dbPort,dbUser,dbPass,dbName;
+            try
+            {
+                var dbHost = configuration["database:host"]!;
+                var dbPort = configuration["database:port"]!;
+                var dbName = configuration["database:name"]!;
+                var dbUser = configuration["database:user"]!;
+                var dbPass = configuration["database:pass"]!;
 
-            // Retrieve environment variables for MongoDB configuration
-            dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "29019";
-            dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
-            dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
-            dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "inventoryDb";
-            
-            // Build the connection string
-            var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
+                var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}";
 
-            Console.WriteLine("INFO: Using connection string: " + connectionString);
-            Console.WriteLine("INFO: Using database name: " + dbName);
-            
-            // Add DbContext to the service collection
-            services.AddDbContext<InventoryContext>(options =>
-                options.UseMongoDB(connectionString, dbName));
+                services.AddDbContext<InventoryContext>(options =>
+                    options.UseMongoDB(connectionString, dbName));
 
-
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Did you forget to add AddDatabase to the configuration?");
+            }
             return services;
         }
 
         private static IServiceCollection AddFluentValidation(this IServiceCollection services)
         {
-            services.AddValidatorsFromAssemblyContaining <GetItemRequestValidator>();
-            services.AddValidatorsFromAssemblyContaining <CreateItemRequestValidator>();
-            services.AddValidatorsFromAssemblyContaining <UpdateItemRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<GetItemRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<UpdateItemRequestValidator>();
             return services;
         }
-
-
-        
-
-
-        private static WebApplicationBuilder AddSettings(this WebApplicationBuilder builder)
-        {
-            builder.Configuration.AddJsonFile(  "inventorySettings.json", 
-                                                optional: true, 
-                                                reloadOnChange: true       );
-            return builder;
-        }
-
     }
 }

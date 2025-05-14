@@ -2,7 +2,9 @@ using Basket.API.Data;
 using Basket.API.DTOs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
+using Shared.Keycloak.Extensions;
 
 namespace Basket.API.Extensions
 {
@@ -10,35 +12,80 @@ namespace Basket.API.Extensions
     {
         public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder)
         {
-
-            builder.Services.AddDatabase()
+            var configuration = builder.Configuration;
+            builder.Services.AddDatabase(configuration)
+                            .AddSwagger()
                             .AddFluentValidation()
-                            .AddEventBus( consumerTypes: [] );
-            
-            return builder; // Return the builder to support fluent chaining
+                            .AddEventBus(configuration, consumerTypes: [])
+                            .AddKeycloakAuthentication(configuration);
+
+            return builder;
         }
 
 
-        private static IServiceCollection AddDatabase(this IServiceCollection services)
+        private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            string dbHost,dbPort,dbUser,dbPass,dbName;
-            // Retrieve environment variables for MongoDB configuration
-            dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "############################################";
-            dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "admin";
-            dbPass = Environment.GetEnvironmentVariable("DB_PASS") ?? "secure-password";
-            dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "basketDb";
+            try
+            {
+                var dbHost = configuration["database:host"];
+                var dbPort = configuration["database:port"];
+                var dbName = configuration["database:name"];
+                var dbUser = configuration["database:user"];
+                var dbPass = configuration["database:pass"];
 
-            var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}/?authSource=admin";
-            // Add DbContext to the service collection
-            services.AddDbContext<BasketContext>(options =>
-                options.UseMongoDB(connectionString, dbName));
+                var connectionString = $"mongodb://{dbUser}:{dbPass}@{dbHost}:{dbPort}/?authSource=admin";
+             
+                services.AddDbContext<BasketContext>(options =>
+                    options.UseMongoDB(connectionString, dbName));
 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Did you forget to add AddDatabase to the configuration?");
+            }
 
             return services;
         }
 
+        private static IServiceCollection AddSwagger(this IServiceCollection services)
+        {
+            services.AddEndpointsApiExplorer()
+                    .AddSwaggerGen(options =>
+                    {
+                        options.SwaggerDoc("v1", new OpenApiInfo
+                        {
+                            Title = "Basket API",
+                            Version = "v1"
+                        });
+                        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.Http,
+                            Scheme = "Bearer",
+                            BearerFormat = "JWT",
+                            In = ParameterLocation.Header,
+                            Description = "Enter 'Bearer {token}'"
+                        });
+                        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    }
+                                },
+                                Array.Empty<string>()
+                            }
+                        });
+                    });
 
+            return services;
+
+        }
         private static IServiceCollection AddFluentValidation(this IServiceCollection services)
         {
             services.AddValidatorsFromAssemblyContaining<BasketItemRequestValidator>();
