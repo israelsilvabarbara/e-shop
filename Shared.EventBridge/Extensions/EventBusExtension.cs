@@ -1,4 +1,5 @@
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -6,36 +7,46 @@ namespace Shared.EventBridge.Extensions
 {
     public static class EventBusExtension
     {
-        public static IServiceCollection AddEventBus(this IServiceCollection services,IEnumerable<Type>? consumerTypes = null)
+        public static IServiceCollection AddEventBus(this IServiceCollection services,
+                                                          IConfiguration configuration,
+                                                          IEnumerable<Type>? consumerTypes = null)
         {
-            services.AddScoped<EventBus>();
-            services.AddMassTransit(config =>
+            try
             {
-                AddConsumers(config,consumerTypes);
-                config.SetKebabCaseEndpointNameFormatter();
-                config.UsingRabbitMq((context, configurator) =>
+                services.AddScoped<EventBus>();
+                services.AddMassTransit(config =>
                 {
-                    var host = Environment.GetEnvironmentVariable("EVENT_HOST") ?? "";
-                    var port = Environment.GetEnvironmentVariable("EVENT_PORT") ?? "";
-                    var user = Environment.GetEnvironmentVariable("EVENT_USER") ?? "";
-                    var pass = Environment.GetEnvironmentVariable("EVENT_PASS") ?? "";
-
-                    configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
+                    AddConsumers(config, consumerTypes);
+                    config.SetKebabCaseEndpointNameFormatter();
+                    config.UsingRabbitMq((context, configurator) =>
                     {
-                        h.Username(user);
-                        h.Password(pass);
-                    });
-                    configurator.ConfigureEndpoints(context);
-                });
-            });
+                        var host = configuration["eventbus:host"]!;
+                        var port = configuration["eventbus:port"]!;
+                        var user = configuration["eventbus:user"]!;
+                        var pass = configuration["eventbus:pass"]!;
 
+                        configurator.Host(new Uri($"rabbitmq://{host}:{port}"), h =>
+                        {
+                            h.Username(user);
+                            h.Password(pass);
+                        });
+                        configurator.ConfigureEndpoints(context);
+                    });
+                });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error adding event bus: " + ex.Message);
+                Console.WriteLine("Did you forget to call AddEventBus to builder.Configuration  ?");
+            }
             return services;
         }
 
 
-        private static void AddConsumers(IBusRegistrationConfigurator config,IEnumerable<Type>? consumerTypes)
+        private static void AddConsumers(IBusRegistrationConfigurator config, IEnumerable<Type>? consumerTypes)
         {
-            if ( consumerTypes == null) return;
+            if (consumerTypes == null) return;
             foreach (var consumer in consumerTypes)
             {
                 config.AddConsumer(consumer);
