@@ -3,6 +3,7 @@ using Inventory.API.Data;
 using Inventory.API.DTOs;
 using Inventory.API.EventBus;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
 using Shared.Keycloak.Extensions;
 
@@ -15,6 +16,7 @@ namespace Inventory.API.Extensions
             var configuration = builder.Configuration;
 
             builder.Services.AddDatabase(configuration)
+                            .AddSwagger()
                             .AddFluentValidation()
                             .AddKeycloakAuthentication(configuration)
                             .AddEventBus(configuration,
@@ -46,6 +48,45 @@ namespace Inventory.API.Extensions
                 Console.WriteLine("Did you forget to add AddDatabase to the configuration?");
             }
             return services;
+        }
+
+         private static IServiceCollection AddSwagger(this IServiceCollection services)
+        {
+            services.AddEndpointsApiExplorer()
+                    .AddSwaggerGen(options =>
+                    {
+                        options.SwaggerDoc("v1", new OpenApiInfo
+                        {
+                            Title = "Inventory API",
+                            Version = "v1"
+                        });
+                        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.Http,
+                            Scheme = "Bearer",
+                            BearerFormat = "JWT",
+                            In = ParameterLocation.Header,
+                            Description = "Enter 'Bearer {token}'"
+                        });
+                        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    }
+                                },
+                                Array.Empty<string>()
+                            }
+                        });
+                    });
+
+            return services;
+
         }
 
         private static IServiceCollection AddFluentValidation(this IServiceCollection services)
