@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Shared.Keycloak.Extensions
 {
-    public static class AuthenticationExtensions
+    public static class ServiceExtension
     {
         public static IServiceCollection AddKeycloakAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
@@ -23,18 +23,7 @@ namespace Shared.Keycloak.Extensions
             // Set internal Keycloak URL for fetching public keys
             var keycloakCertsUrl = $"{keycloakInternalUrl}:{keycloakInternalPort}/realms/{realm}/protocol/openid-connect/certs";
 
-            Console.WriteLine("##############################################################");
-            Console.WriteLine($"DEBUG: Keycloak Internal URL: {keycloakInternalUrl}");
-            Console.WriteLine($"DEBUG: Keycloak Internal Port: {keycloakInternalPort}");
-            Console.WriteLine($"DEBUG: Keycloak API URL: {keycloakApiUrl}");
-            Console.WriteLine($"DEBUG: Keycloak API Port: {keycloakApiPort}");
-            Console.WriteLine($"DEBUG: Keycloak Realm: {realm}");
-            Console.WriteLine($"DEBUG: Keycloak Audience: {audience}");
-            Console.WriteLine($"DEBUG: Keycloak Authority (Issuer Validation): {authority}");
-            Console.WriteLine($"DEBUG: Keycloak Certs URL: {keycloakCertsUrl}");
-            Console.WriteLine($"DEBUG: Require HTTPS Metadata: {isRequiredHttpsMetadata}");
-            Console.WriteLine("##############################################################");
-
+          
             services.AddAuthorization()
                     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
@@ -67,24 +56,6 @@ namespace Shared.Keycloak.Extensions
                                 var json = client.GetStringAsync(keycloakCertsUrl).Result;
 
                                 var keys = new JsonWebKeySet(json).Keys;
-
-                                Console.WriteLine("DEBUG: Found {0} keys", keys.Count);
-                                var keyList = keys.Where(k => k.Kid == kid).ToList(); 
-
-                                if (keyList.Count == 0)
-                                {
-                                    Console.WriteLine("DEBUG: No matching key found");
-                                }else
-                                {
-                                    Console.WriteLine("###########################################################");
-                                    Console.WriteLine("DEBUG: Found {0} matching keys", keyList.Count);
-                                    foreach (var key in keyList)
-                                    {
-                                        Console.WriteLine("DEBUG: Key: {0}", key.KeyId);
-                                    }
-                                    Console.WriteLine("###########################################################");
-                                }
-                                
                                 return keys.Where(k => k.Kid == kid);
                             },
                             ValidateLifetime = true

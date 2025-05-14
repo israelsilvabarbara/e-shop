@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Shared.Keycloak.Extensions
 {
-    public static class AuthenticationConfiguration
+    public static class ConfigurationExtension
     {
         public static IConfigurationBuilder AddKeycloakAuthentication(this IConfigurationBuilder builder)
         {
