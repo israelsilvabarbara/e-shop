@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Basket.API.Data;
 using Basket.API.DTOs;
 using Basket.API.Models;
@@ -14,34 +15,29 @@ namespace Basket.API.Endpoints
         {
             var protectedGroup = app.MapGroup("/basket").RequireAuthorization();
 
-
-            protectedGroup.MapGet("/list",ListBaskets);
-            protectedGroup.MapGet("/search/{buyerId}", ListBasketItems);
-            protectedGroup.MapPost("/item", InsertBasketItem);
-            protectedGroup.MapPut("/item", UpdateBasket);
-            protectedGroup.MapPut("/item/increment", IncrementBasketItemAmout);
-            protectedGroup.MapPut("/item/decrement", DecrementBasketItemAmout);
+            protectedGroup.MapGet("/", GetBasket);
             
-            protectedGroup.MapDelete("/item/{buyerId}", DeleteBasket);
-            protectedGroup.MapDelete("/item", DeleteBasketItem);
+            protectedGroup.MapPost("/item", AddItemToBasket);
+            protectedGroup.MapPut("/items/{itemId}", UpdateItem); 
+            protectedGroup.MapPut("/items/{itemId}/increment", IncrementItemQuantity);
+            protectedGroup.MapPut("/items/{itemId}/decrement", DecrementItemQuantity);
+            
+            protectedGroup.MapDelete("/", DeleteBasket);
+            protectedGroup.MapDelete("/item/{itemId}", DeleteBasketItem);
         }
 
 
-        public static async Task<IResult> ListBaskets( [FromServices] BasketContext context )
-        {
-            var baskets = await context.Baskets.ToListAsync();
-
-
-            Console.WriteLine("DEBUG: Baskets: " + baskets);
-            //Console.WriteLine("INFO: Baskets: " + JsonSerializer.Serialize(baskets));
-            return Results.Ok(baskets);
-        }
-
-
-        public static async Task<IResult> ListBasketItems(
-            [FromRoute] string buyerId, 
+        public static async Task<IResult> GetBasket(
+            ClaimsPrincipal user, 
             [FromServices] BasketContext context )
         {
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if(string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
+
             var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
@@ -55,11 +51,18 @@ namespace Basket.API.Endpoints
         }
 
 
-        public static async Task<IResult> InsertBasketItem( 
+        public static async Task<IResult> AddItemToBasket( 
+            ClaimsPrincipal user,
             [FromBody] CreateBasketItemRequest request, 
             [FromServices] IValidator<CreateBasketItemRequest> validator, 
             [FromServices] BasketContext context)
         {
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
 
             var validationResult = validator.Validate(request);
 
@@ -68,13 +71,13 @@ namespace Basket.API.Endpoints
                 return Results.BadRequest(validationResult.ToDictionary());
             }
 
-            var basket =  await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == request.BuyerId);
+            var basket =  await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
             {
                 basket  = new BasketSelection
                 {
-                    BuyerId = request.BuyerId,
+                    BuyerId = buyerId,
                     Items = new List<Models.BasketItem>(),
                 };
 
@@ -104,11 +107,19 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> UpdateBasket(
+        private static async Task<IResult> UpdateItem(
+            ClaimsPrincipal user,
             [FromBody] UpdateBasketItemRequest request,
             [FromServices] IValidator<UpdateBasketItemRequest> validator,
             [FromServices] BasketContext context )
         {
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
+
             var validationResult = validator.Validate(request);
 
             if( !validationResult.IsValid )
@@ -116,7 +127,7 @@ namespace Basket.API.Endpoints
                 return Results.BadRequest(validationResult.ToDictionary());
             }
 
-            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == request.BuyerId);
+            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
             {
@@ -137,11 +148,19 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> IncrementBasketItemAmout(
+        private static async Task<IResult> IncrementItemQuantity(
+            ClaimsPrincipal user,
             [FromBody] BasketItemRequest request,
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
         {
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
+
             var validationResult = validator.Validate(request);
 
             if (!validationResult.IsValid)
@@ -149,7 +168,7 @@ namespace Basket.API.Endpoints
                 return Results.BadRequest(validationResult.ToDictionary());
             }
 
-            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == request.BuyerId);
+            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
             {
@@ -170,11 +189,19 @@ namespace Basket.API.Endpoints
             return Results.Ok();
         }
 
-        private static async Task<IResult> DecrementBasketItemAmout( 
+        private static async Task<IResult> DecrementItemQuantity( 
+            ClaimsPrincipal user,
             [FromBody] BasketItemRequest request, 
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
         {
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
+
             var validationResult = validator.Validate(request);
 
             if( !validationResult.IsValid )
@@ -182,7 +209,7 @@ namespace Basket.API.Endpoints
                 return Results.BadRequest(validationResult.ToDictionary());
             }
 
-            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == request.BuyerId);
+            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
             {
@@ -209,15 +236,17 @@ namespace Basket.API.Endpoints
 
 
         private static async Task<IResult> DeleteBasket( 
-            string buyer,
+            ClaimsPrincipal user,
             [FromServices] BasketContext context )
         {
-            if (string.IsNullOrEmpty(buyer))
-            {
-                return Results.BadRequest();
-            }
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyer);
+            if (string.IsNullOrEmpty(buyerId))
+            {
+                return Results.Unauthorized();
+            }
+            
+            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if (basket == null)
             {
@@ -232,25 +261,30 @@ namespace Basket.API.Endpoints
         }
 
         private static async Task<IResult> DeleteBasketItem(
-            [FromBody] BasketItemRequest request,
-            [FromServices] IValidator<BasketItemRequest> validator,
+            ClaimsPrincipal user,
+            [FromRoute] Guid productId,
             [FromServices] BasketContext context )
         {
-            var validationResult = validator.Validate(request);
+            var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-            if (!validationResult.IsValid)
+            if (string.IsNullOrEmpty(buyerId))
             {
-                return Results.BadRequest(validationResult.ToDictionary());
+                return Results.Unauthorized();
             }
 
-            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == request.BuyerId);
+            if( productId == Guid.Empty )
+            {
+                return Results.BadRequest("ProductId is required.");
+            }
+
+            var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
 
             if(basket == null)
             {
                 return Results.NotFound();
             }
 
-            var BasketItem = basket.Items.FirstOrDefault(i => i.ProductId == request.ProductId );
+            var BasketItem = basket.Items.FirstOrDefault(i => i.ProductId == productId );
 
             if (BasketItem == null)
             {

@@ -2,8 +2,7 @@ namespace Basket.API.DTOs
 {
     public record CreateBasketItemRequest
     (
-        string BuyerId,
-        int ProductId, 
+        Guid ProductId, 
         string ProductName,
         int Quantity, 
         decimal UnitPrice, 

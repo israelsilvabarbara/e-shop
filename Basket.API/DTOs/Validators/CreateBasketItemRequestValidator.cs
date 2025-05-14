@@ -6,12 +6,8 @@ namespace Basket.API.DTOs
     {
         public CreateBasketItemRequestValidator()
         {
-            RuleFor(x => x.BuyerId)
-                .NotEmpty();
-
             RuleFor(x => x.ProductId)
-                .NotNull()
-                .GreaterThan(0);
+                .NotNull();
 
             RuleFor(x => x.ProductName)
                 .NotEmpty()

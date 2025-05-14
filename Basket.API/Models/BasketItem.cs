@@ -5,7 +5,7 @@ namespace Basket.API.Models
     public class BasketItem 
     {
         [BsonElement("productId")]
-        public required int ProductId { get; set; }
+        public required Guid ProductId { get; set; }
 
         [BsonElement("productName")]
         public required string ProductName { get; set; }

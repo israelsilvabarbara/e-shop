@@ -7,12 +7,10 @@ namespace Basket.API.DTOs
     {
         public UpdateBasketItemRequestValidator()
         {
-            RuleFor(x => x.BuyerId)
-                .NotEmpty();
                
             RuleFor(x => x.ProductId)
                 .NotEmpty()
-                .GreaterThan(0);
+                .WithMessage("ProductId is required.");
                
             RuleFor(x => x.Quantity)
                 .NotEmpty()
