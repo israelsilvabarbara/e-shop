@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Keycloak.Services;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Shared.Keycloak.Extensions
 {
@@ -24,7 +26,11 @@ namespace Shared.Keycloak.Extensions
             var keycloakCertsUrl = $"{keycloakInternalUrl}:{keycloakInternalPort}/realms/{realm}/protocol/openid-connect/certs";
 
           
-            services.AddAuthorization()
+            services.AddAuthorization( options =>
+                    {
+                        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                        options.AddPolicy("User", policy => policy.RequireRole("User", "Admin"));    
+                    })
                     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
@@ -58,9 +64,13 @@ namespace Shared.Keycloak.Extensions
                                 var keys = new JsonWebKeySet(json).Keys;
                                 return keys.Where(k => k.Kid == kid);
                             },
-                            ValidateLifetime = true
+                            ValidateLifetime = true,
+                            //RoleClaimType = "realm_access"
                         };
+                        //options.MapInboundClaims = false; 
                     });
+
+            services.AddScoped<IClaimsTransformation, KeycloakClaimsTransformer>();
 
             return services;
         }
