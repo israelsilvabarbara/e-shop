@@ -18,7 +18,7 @@ namespace Basket.API.Endpoints
             protectedGroup.MapGet("/", GetBasket);
             
             protectedGroup.MapPost("/item", AddItemToBasket);
-            protectedGroup.MapPut("/items/{itemId}", UpdateItem); 
+            protectedGroup.MapPut("/items", UpdateItem); 
             protectedGroup.MapPut("/items/{itemId}/increment", IncrementItemQuantity);
             protectedGroup.MapPut("/items/{itemId}/decrement", DecrementItemQuantity);
             
@@ -84,14 +84,14 @@ namespace Basket.API.Endpoints
                 await context.Baskets.AddAsync(basket);
             }
 
-            var BasketItem = basket.Items.FirstOrDefault( i => i.ProductId == request.ProductId);
+            var BasketItem = basket.Items.FirstOrDefault( i => i.ItemId == request.ItemId);
 
             if (BasketItem == null)
             {
                 basket.Items.Add(new Models.BasketItem
                 {
-                    ProductId = request.ProductId,
-                    ProductName = request.ProductName,
+                    ItemId = request.ItemId,
+                    ItemName = request.ItemName,
                     Quantity = request.Quantity,
                     UnitPrice = request.UnitPrice,
                     PictureUrl = request.PictureUrl
@@ -134,7 +134,7 @@ namespace Basket.API.Endpoints
                 return Results.NotFound();
             }
 
-            var BasketItem = basket.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
+            var BasketItem = basket.Items.FirstOrDefault(i => i.ItemId == request.ItemId);
 
             if (BasketItem == null)
             {
@@ -150,7 +150,7 @@ namespace Basket.API.Endpoints
 
         private static async Task<IResult> IncrementItemQuantity(
             ClaimsPrincipal user,
-            [FromBody] BasketItemRequest request,
+            [AsParameters] BasketItemRequest request,
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
         {
@@ -175,7 +175,7 @@ namespace Basket.API.Endpoints
                 return Results.NotFound();
             }
 
-            var basketItem = basket.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
+            var basketItem = basket.Items.FirstOrDefault(i => i.ItemId == request.ItemId);
 
             if (basketItem == null)
             {
@@ -191,7 +191,7 @@ namespace Basket.API.Endpoints
 
         private static async Task<IResult> DecrementItemQuantity( 
             ClaimsPrincipal user,
-            [FromBody] BasketItemRequest request, 
+            [AsParameters] BasketItemRequest request, 
             [FromServices] IValidator<BasketItemRequest> validator,
             [FromServices] BasketContext context )
         {
@@ -216,7 +216,7 @@ namespace Basket.API.Endpoints
                 return Results.NotFound();
             }
 
-            var basketItem = basket.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
+            var basketItem = basket.Items.FirstOrDefault(i => i.ItemId == request.ItemId);
 
             if (basketItem == null)
             {
@@ -262,7 +262,7 @@ namespace Basket.API.Endpoints
 
         private static async Task<IResult> DeleteBasketItem(
             ClaimsPrincipal user,
-            [FromRoute] Guid productId,
+            [FromRoute] Guid ItemId,
             [FromServices] BasketContext context )
         {
             var buyerId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
@@ -272,9 +272,9 @@ namespace Basket.API.Endpoints
                 return Results.Unauthorized();
             }
 
-            if( productId == Guid.Empty )
+            if( ItemId == Guid.Empty )
             {
-                return Results.BadRequest("ProductId is required.");
+                return Results.BadRequest("ItemId is required.");
             }
 
             var basket = await context.Baskets.FirstOrDefaultAsync(b => b.BuyerId == buyerId);
@@ -284,7 +284,7 @@ namespace Basket.API.Endpoints
                 return Results.NotFound();
             }
 
-            var BasketItem = basket.Items.FirstOrDefault(i => i.ProductId == productId );
+            var BasketItem = basket.Items.FirstOrDefault(i => i.ItemId == ItemId );
 
             if (BasketItem == null)
             {

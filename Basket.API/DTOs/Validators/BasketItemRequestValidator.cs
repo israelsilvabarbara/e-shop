@@ -7,9 +7,9 @@ namespace Basket.API.DTOs
         public BasketItemRequestValidator()
         {
 
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.ItemId)
                 .NotNull()
-                .WithMessage("ProductId is required.");
+                .WithMessage("ItemId is required.");
 
         }
     }

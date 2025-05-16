@@ -6,10 +6,10 @@ namespace Basket.API.DTOs
     {
         public CreateBasketItemRequestValidator()
         {
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.ItemId)
                 .NotNull();
 
-            RuleFor(x => x.ProductName)
+            RuleFor(x => x.ItemName)
                 .NotEmpty()
                 .MaximumLength(100);
 

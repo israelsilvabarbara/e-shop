@@ -8,7 +8,7 @@ namespace Basket.API.DTOs
         public UpdateBasketItemRequestValidator()
         {
                
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.ItemId)
                 .NotEmpty()
                 .WithMessage("ProductId is required.");
                

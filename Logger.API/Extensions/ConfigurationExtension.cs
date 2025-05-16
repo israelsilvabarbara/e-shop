@@ -8,11 +8,19 @@ namespace Logger.API.Extensions
     {
         public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
         {
-            builder.Configuration.AddDatabase()
-                                 .AddSwagger()
-                                 .AddEventBus()
-                                 .AddKeycloakAuthentication();
-                                 
+            var useMockConfig = builder.Configuration.GetValue<bool>("UseMockConfig");
+
+            if (useMockConfig)
+            {
+                builder.Configuration.AddMockConfig();
+            }else
+            {
+                builder.Configuration.AddDatabase()
+                                    .AddSwagger()
+                                    .AddEventBus()
+                                    .AddKeycloakAuthentication();
+            }
+
             return builder;
         }
 
@@ -78,6 +86,32 @@ namespace Logger.API.Extensions
             {
                 { "swagger:enabled", swagger }
             };
+            return builder.AddInMemoryCollection(dictionary);
+        }
+
+        private static IConfigurationBuilder AddMockConfig(this IConfigurationBuilder builder)
+        {
+            var dictionary = new Dictionary<string, string?>
+            {
+                { "database:host", "logger-db" },
+                { "database:port", "5432" },
+                { "database:name", "loggerDb" },
+                { "database:user", "admin" },
+                { "database:pass", "secure-password" },
+                { "swagger:enabled", "true" },
+                { "eventbus:host", "rabbitmq" },
+                { "eventbus:port", "5672" },
+                { "eventbus:user", "admin" },
+                { "eventbus:pass", "password" },
+                { "keycloak:url",  "http://localhost"}, // running from outside docker
+                { "keycloak:port", "9010" },
+                { "keycloak:apiUrl", "http://localhost" },
+                { "keycloak:apiPort", "9010" },
+                { "keycloak:realm", "ecommerce-realm" },
+                { "keycloak:audience", "mock-frontend" },
+                { "keycloak:requireHttpsMetadata", "false" }
+            };
+
             return builder.AddInMemoryCollection(dictionary);
         }
     }

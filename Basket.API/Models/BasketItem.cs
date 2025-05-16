@@ -4,11 +4,11 @@ namespace Basket.API.Models
 {
     public class BasketItem 
     {
-        [BsonElement("productId")]
-        public required Guid ProductId { get; set; }
+        [BsonElement("itemId")]
+        public required Guid ItemId { get; set; }
 
-        [BsonElement("productName")]
-        public required string ProductName { get; set; }
+        [BsonElement("itemName")]
+        public required string ItemName { get; set; }
 
         [BsonElement("quantity")]
         public required int Quantity { get; set; }
