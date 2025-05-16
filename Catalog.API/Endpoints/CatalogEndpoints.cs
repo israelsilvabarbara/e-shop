@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using Catalog.API.Models;
@@ -15,23 +16,26 @@ namespace Catalog.API.Endpoints
         public static void MapCatalogEndpoints(this IEndpointRouteBuilder app)
         {
             var publicGroup = app.MapGroup("/catalog");
-            var protectedGroup = app.MapGroup("/catalog").RequireAuthorization();
+            var protectedGroup = app.MapGroup("/catalog").
+                                RequireAuthorization("User");
+            var adminGroup = app.MapGroup("/catalog")
+                                .RequireAuthorization("AdminOnly");
 
             publicGroup.MapGet("/health", () => "ok");
-            publicGroup.MapGet("/list", ListItems);
-            publicGroup.MapGet("/search/{id:guid}", SearchItem);
-            publicGroup.MapGet("/type/list", ListTypes);
-            publicGroup.MapGet("/type/search/{id:guid}", SearchType);
+            publicGroup.MapGet("/items", ListItems);
+            publicGroup.MapGet("/items/{id:guid}", GetItemById);
+            publicGroup.MapGet("/types", ListTypes);
+            publicGroup.MapGet("/type/{id:guid}", GetTypeById);
             publicGroup.MapGet("/brand/list", ListBrands);
             publicGroup.MapGet("/brand/search/{id:guid}", SearchBrand);
 
-            protectedGroup.MapPost("/insert", InsertItem);
-            protectedGroup.MapPut("/update", UpdateItem);
-            protectedGroup.MapDelete("/delete/{id:guid}", DeleteItem);
-            protectedGroup.MapPost("/type/insert", InsertType);
-            protectedGroup.MapDelete("/type/delete/{id:guid}", DeleteType);
-            protectedGroup.MapPost("/brand/insert", InsertBrand);
-            protectedGroup.MapDelete("/brand/delete/{id:guid}", DeleteBrand);
+            adminGroup.MapPost("/insert", InsertItem);
+            adminGroup.MapPut("/update", UpdateItem);
+            adminGroup.MapDelete("/delete/{id:guid}", DeleteItem);
+            adminGroup.MapPost("/type/insert", InsertType);
+            adminGroup.MapDelete("/type/delete/{id:guid}", DeleteType);
+            adminGroup.MapPost("/brand/insert", InsertBrand);
+            adminGroup.MapDelete("/brand/delete/{id:guid}", DeleteBrand);
 
             app.MapFallback(NotFoundEndpoint);
         }
@@ -39,6 +43,14 @@ namespace Catalog.API.Endpoints
 
 
 
+        static async Task<IResult> TestClaims(
+            ClaimsPrincipal user,
+            [FromServices] CatalogContext context
+        )
+        {
+            var claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            return Results.Ok(claims);
+        }
 
         static async Task<IResult> ListItems(
             [AsParameters] FilterQueryRequest filter,
@@ -96,7 +108,7 @@ namespace Catalog.API.Endpoints
         }
 
 
-        static async Task<IResult> SearchItem(
+        static async Task<IResult> GetItemById(
             [FromRoute] Guid id,
             [FromServices] CatalogContext context)
         {
@@ -236,7 +248,7 @@ namespace Catalog.API.Endpoints
             return Results.Ok(new ListTypesResponse(Count: itemsResponse.Count, Types: itemsResponse));
         }
 
-        static async Task<IResult> SearchType(
+        static async Task<IResult> GetTypeById(
             [FromRoute] Guid id,
             [FromServices] CatalogContext context)
         {

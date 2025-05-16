@@ -32,6 +32,6 @@ EXPOSE 8080
 COPY --from=dev /src/publish .
 
 
-RUN apt-get update && apt-get install -y curl && apt-get install -y iputils-ping
+#RUN apt-get update && apt-get install -y curl && apt-get install -y iputils-ping
 
 ENTRYPOINT ["dotnet", "Catalog.API.dll"]
