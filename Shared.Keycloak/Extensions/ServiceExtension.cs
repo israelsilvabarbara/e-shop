@@ -65,9 +65,7 @@ namespace Shared.Keycloak.Extensions
                                 return keys.Where(k => k.Kid == kid);
                             },
                             ValidateLifetime = true,
-                            //RoleClaimType = "realm_access"
                         };
-                        //options.MapInboundClaims = false; 
                     });
 
             services.AddScoped<IClaimsTransformation, KeycloakClaimsTransformer>();

@@ -9,28 +9,17 @@ namespace Shared.Keycloak.Services
     {
         public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            Console.WriteLine("################################################");
-            
             var identity = principal.Identities.FirstOrDefault(i => i.IsAuthenticated);
 
             if (identity != null)
             {
                 var realmAccessClaim = principal.FindFirst("realm_access")?.Value;
-                Console.WriteLine("DEBUG: realmAccessClaim: " + realmAccessClaim);
+
                 if (!string.IsNullOrEmpty(realmAccessClaim))
                 {
                     try
                     {
                         var realmAccess = JsonSerializer.Deserialize<RealmAccess>(realmAccessClaim);
-                        Console.WriteLine("DEBUG: realm_access: " + JsonSerializer.Serialize(realmAccess));
                         if (realmAccess?.Roles != null)
                         {
                             foreach (var role in realmAccess.Roles)
@@ -45,13 +34,8 @@ namespace Shared.Keycloak.Services
                         // Handle potential JSON parsing errors
                         Console.WriteLine($"Error parsing realm_access claim: {ex.Message}");
                     }
-                }else
-                {
-                    Console.WriteLine("DEBUG: ERROR: realm_access claim not found");
                 }
-            }else
-            {
-                Console.WriteLine("DEBUG: ERROR: Identity not found");
+                
             }
 
             return Task.FromResult(principal);
