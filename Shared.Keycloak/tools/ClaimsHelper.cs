@@ -2,7 +2,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace Shared.Keycloak.Services
+namespace Shared.Keycloak.Tools
 {
 
     public static class ClaimsHelper

@@ -6,6 +6,7 @@ namespace Shared.EventBridge.Enums
         IdentityKeyGen,
         Inventory,
         Catalog,
-        Basket
+        Basket,
+        Order,
     }
 }

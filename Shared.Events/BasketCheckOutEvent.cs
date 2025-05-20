@@ -1,11 +1,20 @@
 namespace Shared.Events
 {
-    public record BasketCheckOutEvent
+    public record BasketCheckoutEvent
     (
         Guid Id,
         Guid BasketId,
-        Guid CustomerId,
-        IEnumerable<Guid> ProductIds,
+        Guid BuyerId,
+        IEnumerable<ItemDetails> Items,
         DateTime EventDate
-    ):IEvent;
+    ) : IEvent;
+
+
+    public record ItemDetails
+    (
+        Guid Id,
+        string Name,
+        int Quantity,
+        decimal UnitPrice
+    );
 }

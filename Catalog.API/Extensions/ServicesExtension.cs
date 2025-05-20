@@ -1,4 +1,3 @@
-using System.Reflection;
 using Catalog.API.Data;
 using Catalog.API.DTOs;
 using FluentValidation;

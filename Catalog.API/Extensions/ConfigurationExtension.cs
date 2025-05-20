@@ -93,14 +93,14 @@ namespace Catalog.API.Extensions
         {
             var dictionary = new Dictionary<string, string?>
             {
-                { "database:host", "catalog-db" },
-                { "database:port", "5432" },
+                { "database:host", "localhost" },
+                { "database:port", "30020" }, // fix this value
                 { "database:name", "catalogDb" },
                 { "database:user", "admin" },
                 { "database:pass", "secure-password" },
                 { "swagger:enabled", "true" },
-                { "eventbus:host", "rabbitmq" },
-                { "eventbus:port", "5672" },
+                { "eventbus:host", "localhost" }, //running from outside docker
+                { "eventbus:port", "30100" },
                 { "eventbus:user", "admin" },
                 { "eventbus:pass", "password" },
                 { "keycloak:url",  "http://localhost"}, // running from outside docker
