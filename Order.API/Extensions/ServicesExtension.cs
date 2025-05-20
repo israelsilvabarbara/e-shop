@@ -1,11 +1,10 @@
-using System.Reflection;
 using Order.API.Data;
-using Order.API.DTOs;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Shared.EventBridge.Extensions;
 using Shared.Keycloak.Extensions;
+using Order.API.DTOs;
+using FluentValidation;
 
 namespace Order.API.Extensions
 {
@@ -32,7 +31,7 @@ namespace Order.API.Extensions
                     {
                         options.SwaggerDoc("v1", new OpenApiInfo
                         {
-                            Title = "Catalog API",
+                            Title = "Order API",
                             Version = "v1"
                         });
                         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -82,9 +81,8 @@ namespace Order.API.Extensions
 
         private static IServiceCollection AddFluentValidation(this IServiceCollection services)
         {
-            
-            services.AddValidatorsFromAssemblyContaining<CreateItemRequestValidator>();
-            
+            services.AddValidatorsFromAssemblyContaining<InsertOrderRequestValidator>(); 
+            services.AddValidatorsFromAssemblyContaining<OrderItemRequestValidator>();           
             return services;
         }
 

@@ -1,4 +1,5 @@
 using Order.API.Endpoints;
+using Order.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

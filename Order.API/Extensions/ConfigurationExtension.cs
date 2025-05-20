@@ -92,14 +92,14 @@ namespace Order.API.Extensions
         {
             var dictionary = new Dictionary<string, string?>
             {
-                { "database:host", "order-db" },
-                { "database:port", "5432" },
+                { "database:host", "localhost" },
+                { "database:port", "30060" },
                 { "database:name", "orderDb" },
                 { "database:user", "admin" },
                 { "database:pass", "secure-password" },
                 { "swagger:enabled", "true" },
-                { "eventbus:host", "rabbitmq" },
-                { "eventbus:port", "5672" },
+                { "eventbus:host", "localhost" },
+                { "eventbus:port", "30100" },
                 { "eventbus:user", "admin" },
                 { "eventbus:pass", "password" },
                 { "keycloak:url",  "http://localhost"}, // running from outside docker
