@@ -29,8 +29,8 @@ services:
       POSTGRES_USER: ${CATALOG_DB_USER}
       POSTGRES_PASSWORD: ${CATALOG_DB_PASS}
       POSTGRES_DB: ${CATALOG_DB_NAME}
-    expose:
-      - "${CATALOG_DB_PORT}"
+    ports:
+      - "${CATALOG_DB_PORT_EXTERNAL}:${CATALOG_DB_PORT_INTERNAL}"
     volumes:
       - catalogdata:/var/lib/postgresql/data
     healthcheck:
@@ -50,8 +50,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${BASKET_DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${BASKET_DB_PASS}
       MONGO_INITDB_DATABASE: ${BASKET_DB_NAME}
-    expose:
-      - "${BASKET_DB_PORT}"
+    ports:
+      - "${BASKET_DB_PORT_EXTERNAL}:${BASKET_DB_PORT_INTERNAL}"
     volumes:
       - basketdata:/data/db
     healthcheck:
@@ -72,8 +72,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${INVENTORY_DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${INVENTORY_DB_PASS}
       MONGO_INITDB_DATABASE: ${INVENTORY_DB_NAME}
-    expose:
-      - "${INVENTORY_DB_PORT}"
+    ports:
+      - "${INVENTORY_DB_PORT_EXTERNAL}:${INVENTORY_DB_PORT_INTERNAL}"
     volumes:
       - inventorydata:/data/db
     healthcheck:
@@ -95,8 +95,8 @@ services:
       POSTGRES_USER: ${LOGGER_DB_USER}
       POSTGRES_PASSWORD: ${LOGGER_DB_PASS}
       POSTGRES_DB: ${LOGGER_DB_NAME}
-    expose:
-      - "${LOGGER_DB_PORT}"
+    ports:
+      - "${LOGGER_DB_PORT_EXTERNAL}:${LOGGER_DB_PORT_INTERNAL}"
     volumes:
       - loggerdata:/var/lib/postgresql/data
     healthcheck:
@@ -108,6 +108,27 @@ services:
       - logger
     networks:
       - app_network
+  
+  order-db:
+    image: postgres:latest
+    container_name: order-db
+    environment:
+      POSTGRES_USER: ${ORDER_DB_USER}
+      POSTGRES_PASSWORD: ${ORDER_DB_PASS}
+      POSTGRES_DB: ${ORDER_DB_NAME}
+    ports:
+      - "${ORDER_DB_PORT_EXTERNAL}:${ORDER_DB_PORT_INTERNAL}"
+    volumes:
+      - orderdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
+      interval: 10s
+      retries: 5
+    profiles:
+      - data
+      - order
+    networks:
+      - app_network
 
 
   rabbitmq:
@@ -116,10 +137,9 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${EVENT_USER}
       RABBITMQ_DEFAULT_PASS: ${EVENT_PASS}
-    expose:
-      - "${EVENT_PORT}"       # RabbitMQ internal communication port
     ports:
-      - "${EVENT_MANAGEMENT_PORT}:15672"     # Management UI internal communication port
+      - "${EVENT_PORT_EXTERNAL}:${EVENT_PORT_INTERNAL}"       # RabbitMQ internal communication port
+      - "${EVENT_MANAGEMENT_PORT}:${EVENT_MANAGEMENT_PORT}"     # Management UI internal communication port
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq/mnesia
     healthcheck:
@@ -150,8 +170,8 @@ services:
       keycloak-db:
         condition: service_healthy
     profiles:
+      - data
       - keycloak
-      - apis
     networks:
       - app_network
 
@@ -162,12 +182,12 @@ services:
     container_name: catalog-api
     environment:
       DB_HOST: ${CATALOG_DB_HOST}
-      DB_PORT: ${CATALOG_DB_PORT} # Internal port for PostgreSQL
+      DB_PORT: ${CATALOG_DB_PORT_INTERNAL} # Internal port for PostgreSQL
       DB_NAME: ${CATALOG_DB_NAME}
       DB_USER: ${CATALOG_DB_USER}
       DB_PASS: ${CATALOG_DB_PASS}
       EVENT_HOST: ${EVENT_HOST}
-      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
+      EVENT_PORT: ${EVENT_PORT_INTERNAL} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED}
@@ -199,12 +219,12 @@ services:
     container_name: basket-api
     environment:
       DB_HOST: ${BASKET_DB_HOST}
-      DB_PORT: ${BASKET_DB_PORT} # Internal port for MongoDB
+      DB_PORT: ${BASKET_DB_PORT_INTERNAL} # Internal port for MongoDB
       DB_USER: ${BASKET_DB_USER}
       DB_PASS: ${BASKET_DB_PASS}
       DB_NAME: ${BASKET_DB_NAME}
       EVENT_HOST: ${EVENT_HOST}
-      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
+      EVENT_PORT: ${EVENT_PORT_INTERNAL} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED}
@@ -236,12 +256,12 @@ services:
     container_name: inventory-api
     environment:
       DB_HOST: ${INVENTORY_DB_HOST}
-      DB_PORT: ${INVENTORY_DB_PORT} # Internal port for MongoDB
+      DB_PORT: ${INVENTORY_DB_PORT_INTERNAL} # Internal port for MongoDB
       DB_USER: ${INVENTORY_DB_USER}
       DB_PASS: ${INVENTORY_DB_PASS}
       DB_NAME: ${INVENTORY_DB_NAME}
       EVENT_HOST: ${EVENT_HOST}
-      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
+      EVENT_PORT: ${EVENT_PORT_INTERNAL} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
@@ -274,12 +294,12 @@ services:
     container_name: logger-api
     environment:
       DB_HOST: ${LOGGER_DB_HOST}
-      DB_PORT: ${LOGGER_DB_PORT} # Internal port for PostgreSQL
+      DB_PORT: ${LOGGER_DB_PORT_INTERNAL} # Internal port for PostgreSQL
       DB_NAME: ${LOGGER_DB_NAME}
       DB_USER: ${LOGGER_DB_USER}
       DB_PASS: ${LOGGER_DB_PASS}
       EVENT_HOST: ${EVENT_HOST}
-      EVENT_PORT: ${EVENT_PORT} # Internal port for RabbitMQ
+      EVENT_PORT: ${EVENT_PORT_INTERNAL} # Internal port for RabbitMQ
       EVENT_USER: ${EVENT_USER}
       EVENT_PASS: ${EVENT_PASS}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
@@ -303,12 +323,54 @@ services:
     networks:
       - app_network
 
+  order-api:
+    build:
+      context: .
+      dockerfile: Order.API/Dockerfile
+    container_name: order-api
+    environment:
+      DB_HOST: ${ORDER_DB_HOST}
+      DB_PORT: ${ORDER_DB_PORT_INTERNAL} # Internal port for MongoDB
+      DB_USER: ${ORDER_DB_USER}
+      DB_PASS: ${ORDER_DB_PASS}
+      DB_NAME: ${ORDER_DB_NAME}
+      EVENT_HOST: ${EVENT_HOST}
+      EVENT_PORT: ${EVENT_PORT_INTERNAL} # Internal port for RabbitMQ
+      EVENT_USER: ${EVENT_USER}
+      EVENT_PASS: ${EVENT_PASS}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_PORT: ${KEYCLOAK_PORT}
+      KEYCLOAK_API_URL: ${KEYCLOAK_API_URL}
+      KEYCLOAK_API_PORT: ${KEYCLOAK_API_PORT}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE}
+      KEYCLOAK_REQUIRE_HTTPS_METADATA: ${KEYCLOAK_REQUIRE_HTTPS_METADATA}
+
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${ORDER_API_PORT}:8080" # API exposed externally
+    depends_on:
+      order-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    profiles:
+      - apis
+      - order
+    networks:
+      - app_network
+
+
+  
+
 volumes:
   catalogdata:
   identitydata:
   basketdata:
   inventorydata:
   loggerdata:
+  orderdata:
   rabbitmqdata:
   keycloak_data:
 

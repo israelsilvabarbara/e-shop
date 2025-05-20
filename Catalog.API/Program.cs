@@ -7,7 +7,6 @@ builder.AddConfiguration();
 builder.AddServices();
 
 var app = builder.Build();
-
 var swaggerEnabled = builder.Configuration["swagger:enabled"]!.Equals("true", StringComparison.CurrentCultureIgnoreCase);
 
 if (swaggerEnabled)
